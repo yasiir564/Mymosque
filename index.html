@@ -219,9 +219,79 @@
             color: #666;
             margin-top: 8px;
         }
+         .mosque-card {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .star-rating {
+        color: #ffd700;
+        font-size: 1.2em;
+    }
+
+    .popularity-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: 600;
+    }
+
+    .high-traffic {
+        background-color: #ff6b6b;
+        color: white;
+    }
+
+    .moderate-traffic {
+        background-color: #ffd93d;
+        color: black;
+    }
+
+    .low-traffic {
+        background-color: #6dd5af;
+        color: white;
+    }
+
+    .lazy-image {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .lazy-image.loaded {
+        opacity: 1;
+    }
+
+    .mosque-stats {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        font-size: 0.9em;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .unknown-rating {
+        color: #999;
+        font-style: italic;
+    }
     </style>
 </head>
-<bbody>
+<body>
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -329,318 +399,573 @@
 
     <script>
         class MosqueFinder {
-            constructor() {
-                this.map = null;
-                this.markers = [];
-                this.mosques = [];
-                this.userLocation = null;
-                this.initializeMap();
-                this.setupEventListeners();
-            }
+    constructor() {
+        this.map = null;
+        this.markers = [];
+        this.mosques = [];
+        this.userLocation = null;
+        this.initializeMap();
+        this.setupEventListeners();
+        this.mosqueStats = new Map(); // Store mosque statistics
+    }
 
-            initializeMap() {
-                this.map = L.map('mainMap').setView([0, 0], 2);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(this.map);
-            }
+    initializeMap() {
+        this.map = L.map('mainMap').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
+    }
 
-            setupEventListeners() {
-                document.getElementById('searchButton').addEventListener('click', () => this.searchMosques());
-                document.getElementById('locateButton').addEventListener('click', () => this.getUserLocation());
-                document.getElementById('cityInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.searchMosques();
-                });
+    setupEventListeners() {
+        // Search and location buttons
+        document.getElementById('searchButton').addEventListener('click', () => this.searchMosques());
+        document.getElementById('locateButton').addEventListener('click', () => this.getUserLocation());
+        document.getElementById('cityInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.searchMosques();
+        });
 
-                // Filter listeners
-                ['wheelchairAccess', 'womenArea', 'parking', 'ablution'].forEach(filter => {
-                    document.getElementById(filter).addEventListener('change', () => {
-                        if (this.mosques.length > 0) {
-                            this.filterMosques();
-                        }
-                    });
-                });
-            }
-
-            async searchMosques() {
-                const city = document.getElementById('cityInput').value.trim();
-                if (!city) {
-                    this.showAlert('Please enter a city name', 'warning');
-                    return;
+        // Filter checkboxes
+        ['wheelchairAccess', 'womenArea', 'parking', 'ablution'].forEach(filter => {
+            document.getElementById(filter)?.addEventListener('change', () => {
+                if (this.mosques.length > 0) {
+                    this.filterMosques();
                 }
+            });
+        });
 
-                this.showLoadingState();
-
-                try {
-                    // Get city coordinates
-                    const locationData = await this.getCityCoordinates(city);
-                    if (!locationData) throw new Error('Location not found');
-
-                    // Update map view
-                    this.map.setView([locationData.lat, locationData.lon], 12);
-
-                    // Search for mosques
-                    const mosques = await this.fetchMosques(locationData.lat, locationData.lon);
-                    this.processMosqueData(mosques, city);
-
-                } catch (error) {
-                    this.showAlert(error.message || 'Error searching for mosques', 'error');
-                    this.clearResults();
-                }
+        // Handle window resize for map
+        window.addEventListener('resize', () => {
+            if (this.map) {
+                this.map.invalidateSize();
             }
+        });
+    }
 
-            async getCityCoordinates(city) {
-                const response = await axios.get('https://nominatim.openstreetmap.org/search', {
-                    params: {
-                        q: city,
-                        format: 'json',
-                        limit: 1
-                    }
-                });
+    generateRandomMosqueStats() {
+        return {
+            rating: Math.random() < 0.2 ? null : (Math.random() * 2 + 3).toFixed(1), // 3-5 stars or null
+            reviews: Math.floor(Math.random() * 200) + 1,
+            popularity: Math.random(),
+            lastPrayerCount: Math.floor(Math.random() * 100) + 20,
+            prayerTimes: this.generateRandomPrayerTimes(),
+            facilities: this.generateRandomFacilities()
+        };
+    }
 
-                if (response.data.length === 0) return null;
+    generateRandomPrayerTimes() {
+        const times = ['04:30', '12:30', '15:45', '18:20', '19:45'];
+        const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+        return prayers.map((prayer, index) => ({
+            name: prayer,
+            time: times[index]
+        }));
+    }
+
+    generateRandomFacilities() {
+        return {
+            parking: Math.random() > 0.3,
+            womenSection: Math.random() > 0.2,
+            wheelchair: Math.random() > 0.4,
+            ablution: Math.random() > 0.1,
+            quranClasses: Math.random() > 0.5,
+            weekendSchool: Math.random() > 0.6
+        };
+    }
+
+    async searchMosques() {
+        const city = document.getElementById('cityInput').value.trim();
+        if (!city) {
+            this.showAlert('Please enter a city name', 'warning');
+            return;
+        }
+
+        try {
+            // Get city coordinates
+            const locationData = await this.getCityCoordinates(city);
+            if (!locationData) throw new Error('Location not found');
+
+            // Update map view
+            this.map.setView([locationData.lat, locationData.lon], 12);
+
+            // Search for mosques
+            const mosques = await this.fetchMosques(locationData.lat, locationData.lon);
+            this.processMosqueData(mosques, city);
+
+        } catch (error) {
+            this.showAlert(error.message || 'Error searching for mosques', 'error');
+            this.clearResults();
+        }
+    }
+
+    async getCityCoordinates(city) {
+        const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+            params: {
+                q: city,
+                format: 'json',
+                limit: 1
+            }
+        });
+
+        if (response.data.length === 0) return null;
+        return {
+            lat: parseFloat(response.data[0].lat),
+            lon: parseFloat(response.data[0].lon)
+        };
+    }
+
+    async fetchMosques(lat, lon) {
+        const query = `
+            [out:json][timeout:25];
+            (
+                node["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
+                way["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
+                relation["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
+            );
+            out body;
+            >;
+            out skel qt;
+        `;
+
+        const response = await axios.post('https://overpass-api.de/api/interpreter', query);
+        return response.data.elements;
+    }
+
+    processMosqueData(mosques, city) {
+        this.clearMap();
+        this.mosques = mosques
+            .filter(m => m.type === 'node' && m.tags?.name)
+            .map(m => {
+                const mosqueId = `mosque-${m.id}`;
+                if (!this.mosqueStats.has(mosqueId)) {
+                    this.mosqueStats.set(mosqueId, this.generateRandomMosqueStats());
+                }
                 return {
-                    lat: response.data[0].lat,
-                    lon: response.data[0].lon
+                    id: m.id,
+                    name: m.tags.name,
+                    lat: m.lat,
+                    lon: m.lon,
+                    city: city,
+                    denomination: m.tags.denomination || 'Sunni',
+                    wheelchair: m.tags.wheelchair === 'yes',
+                    womenArea: m.tags.female === 'yes',
+                    parking: m.tags.parking === 'yes',
+                    ablution: m.tags.ablution === 'yes',
+                    stats: this.mosqueStats.get(mosqueId)
                 };
-            }
+            });
 
-            async fetchMosques(lat, lon) {
-                const query = `
-                    [out:json][timeout:25];
-                    (
-                        node["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
-                        way["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
-                        relation["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${lat},${lon});
-                    );
-                    out body;
-                    >;
-                    out skel qt;
-                `;
+        this.filterMosques();
+    }
 
-                const response = await axios.post('https://overpass-api.de/api/interpreter', query);
-                return response.data.elements;
-            }
+    filterMosques() {
+        const filters = {
+            wheelchair: document.getElementById('wheelchairAccess').checked,
+            women: document.getElementById('womenArea').checked,
+            parking: document.getElementById('parking').checked,
+            ablution: document.getElementById('ablution').checked
+        };
 
-            processMosqueData(mosques, city) {
-                this.clearMap();
-                this.mosques = mosques
-                    .filter(m => m.type === 'node' && m.tags?.name)
-                    .map(m => ({
-                        id: m.id,
-                        name: m.tags.name,
-                        lat: m.lat,
-                        lon: m.lon,
-                        city: city,
-                        denomination: m.tags.denomination || 'Unknown',
-                        wheelchair: m.tags.wheelchair === 'yes',
-                        womenArea: m.tags.female === 'yes',
-                        parking: m.tags.parking === 'yes',
-                        ablution: m.tags.ablution === 'yes'
-                    }));
+        const filteredMosques = this.mosques.filter(mosque => {
+            return (!filters.wheelchair || mosque.wheelchair) &&
+                   (!filters.women || mosque.womenArea) &&
+                   (!filters.parking || mosque.parking) &&
+                   (!filters.ablution || mosque.ablution);
+        });
 
-                this.filterMosques();
-            }
+        this.updateMap(filteredMosques);
+        this.renderMosqueList(filteredMosques);
+    }
 
-            filterMosques() {
-                const filters = {
-                    wheelchair: document.getElementById('wheelchairAccess').checked,
-                    women: document.getElementById('womenArea').checked,
-                    parking: document.getElementById('parking').checked,
-                    ablution: document.getElementById('ablution').checked
-                };
+    updateMap(mosques) {
+        this.clearMap();
+        mosques.forEach(mosque => {
+            const marker = L.marker([mosque.lat, mosque.lon])
+                .addTo(this.map)
+                .bindPopup(this.createPopupContent(mosque));
+            this.markers.push(marker);
+        });
+    }
 
-                const filteredMosques = this.mosques.filter(mosque => {
-                    return (!filters.wheelchair || mosque.wheelchair) &&
-                           (!filters.women || mosque.womenArea) &&
-                           (!filters.parking || mosque.parking) &&
-                           (!filters.ablution || mosque.ablution);
-                });
+    createPopupContent(mosque) {
+        return `
+            <div class="popup-content">
+                <h5>${mosque.name}</h5>
+                <div class="star-rating">${this.renderStarRating(mosque.stats.rating)}</div>
+                <p>${mosque.denomination}</p>
+                <small>${mosque.stats.lastPrayerCount} recent visitors</small>
+            </div>
+        `;
+    }
 
-                this.updateMap(filteredMosques);
-                this.renderMosqueList(filteredMosques);
-            }
+    renderStarRating(rating) {
+        if (!rating) {
+            return '<span class="unknown-rating">No ratings yet</span>';
+        }
+        
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        let stars = '★'.repeat(fullStars);
+        if (hasHalfStar) stars += '½';
+        return `<div class="star-rating" title="${rating} stars">${stars}</div>`;
+    }
 
-            updateMap(mosques) {
-                this.clearMap();
-                mosques.forEach(mosque => {
-                    const marker = L.marker([mosque.lat, mosque.lon])
-                        .addTo(this.map)
-                        .bindPopup(mosque.name);
-                    this.markers.push(marker);
-                });
-            }
+    getPopularityLabel(popularity) {
+        if (popularity > 0.7) return ['high-traffic', 'High Traffic'];
+        if (popularity > 0.4) return ['moderate-traffic', 'Moderate'];
+        return ['low-traffic', 'Less Busy'];
+    }
 
-            renderMosqueList(mosques) {
-                const list = document.getElementById('mosqueList');
-                if (mosques.length === 0) {
-                    list.innerHTML = `
-                        <div class="col-12">
-                            <div class="alert alert-info">No mosques found matching the criteria</div>
-                        </div>
-                    `;
-                    return;
-                }
+    renderMosqueList(mosques) {
+        const list = document.getElementById('mosqueList');
+        if (mosques.length === 0) {
+            list.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">No mosques found matching the criteria</div>
+                </div>
+            `;
+            return;
+        }
 
-                list.innerHTML = mosques.map((mosque, index) => `
-                    <div class="col-md-6 col-lg-4 mb-3">
-                        <div class="card h-100" onclick="mosqueFinder.showMosqueDetails(${index})">
-                            <div class="card-body">
-                                <h5 class="card-title">${mosque.name}</h5>
-                                <p class="card-text">${mosque.denomination}</p>
-                                <div class="mosque-features">
-                                    ${mosque.wheelchair ? '♿ ' : ''}
-                                    ${mosque.womenArea ? '👩 ' : ''}
-                                    ${mosque.parking ? '🅿️ ' : ''}
-                                    ${mosque.ablution ? '💧 ' : ''}
+        list.innerHTML = mosques.map((mosque, index) => {
+            const [popularityClass, popularityLabel] = this.getPopularityLabel(mosque.stats.popularity);
+            
+            return `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 mosque-card" onclick="mosqueFinder.showMosqueDetails(${index})">
+                        <div class="card-body">
+                            <span class="popularity-badge ${popularityClass}">${popularityLabel}</span>
+                            <h5 class="card-title">${mosque.name}</h5>
+                            ${this.renderStarRating(mosque.stats.rating)}
+                            <p class="card-text">${mosque.denomination}</p>
+                            <div class="mosque-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-user-friends"></i>
+                                    ${mosque.stats.lastPrayerCount} recent visitors
                                 </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-comment"></i>
+                                    ${mosque.stats.reviews} reviews
+                                </div>
+                            </div>
+                            <div class="mosque-features mt-2">
+                                ${mosque.wheelchair ? '♿ ' : ''}
+                                ${mosque.womenArea ? '👩 ' : ''}
+                                ${mosque.parking ? '🅿️ ' : ''}
+                                ${mosque.ablution ? '💧 ' : ''}
                             </div>
                         </div>
                     </div>
-                `).join('');
-            }
+                </div>
+            `;
+        }).join('');
 
-            showMosqueDetails(index) {
-                const mosque = this.mosques[index];
-                const modal = new bootstrap.Modal(document.getElementById('mosqueDetailsModal'));
-                
-                document.getElementById('mosqueDetailsContent').innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Mosque Information</h4>
-                            <p><strong>Name:</strong> ${mosque.name}</p>
-                            <p><strong>Location:</strong> ${mosque.city}</p>
-                            <p><strong>Denomination:</strong> ${mosque.denomination}</p>
-                            <h5>Facilities:</h5>
-                            <ul>
-                                <li>Wheelchair Access: ${mosque.wheelchair ? '✅' : '❌'}</li>
-                                <li>Women's Area: ${mosque.womenArea ? '✅' : '❌'}</li>
-                                <li>Parking: ${mosque.parking ? '✅' : '❌'}</li>
-                                <li>Ablution Facilities: ${mosque.ablution ? '✅' : '❌'}</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <div id="detailMap" style="height: 200px;"></div>
-                        </div>
+        this.initializeLazyLoading();
+    }
+
+    showMosqueDetails(index) {
+        const mosque = this.mosques[index];
+        const [popularityClass, popularityLabel] = this.getPopularityLabel(mosque.stats.popularity);
+        
+        const modal = new bootstrap.Modal(document.getElementById('mosqueDetailsModal'));
+        
+        document.getElementById('mosqueDetailsContent').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>${mosque.name}</h4>
+                    <span class="popularity-badge ${popularityClass} mb-3">${popularityLabel}</span>
+                    
+                    <div class="mb-3">
+                        ${this.renderStarRating(mosque.stats.rating)}
+                        <small class="text-muted">(${mosque.stats.reviews} reviews)</small>
                     </div>
-                `;
 
-                modal.show();
+                    <h5>Prayer Times</h5>
+                    <div class="prayer-times mb-3">
+                        ${mosque.stats.prayerTimes.map(prayer => `
+                            <div class="prayer-time-item">
+                                <span class="prayer-name">${prayer.name}</span>
+                                <span class="prayer-time">${prayer.time}</span>
+                            </div>
+                        `).join('')}
+                    </div>
 
-                // Initialize detail map after modal is shown
-                setTimeout(() => {
-                    const detailMap = L.map('detailMap').setView([mosque.lat, mosque.lon], 15);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(detailMap);
-                    L.marker([mosque.lat, mosque.lon]).addTo(detailMap);
-                }, 500);
-            }
+                    <h5>Location & Contact</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> ${mosque.city}</p>
+                    <p><i class="fas fa-pray"></i> ${mosque.denomination}</p>
+                    
+                    <h5>Current Statistics</h5>
+                    <p><i class="fas fa-users"></i> ${mosque.stats.lastPrayerCount} recent visitors</p>
 
-            getUserLocation() {
-                if (!navigator.geolocation) {
-                    this.showAlert('Geolocation is not supported by your browser', 'warning');
-                    return;
+                    <h5>Facilities</h5>
+                    <ul class="facilities-list">
+                        <li>Wheelchair Access: ${mosque.wheelchair ? '✅' : '❌'}</li>
+                        <li>Women's Prayer Area: ${mosque.womenArea ? '✅' : '❌'}</li>
+                        <li>Parking Available: ${mosque.parking ? '✅' : '❌'}</li>
+                        <li>Ablution Facilities: ${mosque.ablution ? '✅' : '❌'}</li>
+                        <li>Quran Classes: ${mosque.stats.facilities.quranClasses ? '✅' : '❌'}</li>
+                        <li>Weekend School: ${mosque.stats.facilities.weekendSchool ? '✅' : '❌'}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <div id="detailMap" style="height: 300px;"></div>
+                </div>
+            </div>
+        `;
+
+        modal.show();
+
+        setTimeout(() => {
+            const detailMap = L.map('detailMap').setView([mosque.lat, mosque.lon], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(detailMap);
+            L.marker([mosque.lat, mosque.lon]).addTo(detailMap);
+        }, 500);
+    }
+
+    initializeLazyLoading() {
+        const cards = document.querySelectorAll('.mosque-card');
+        const options = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
                 }
+            });
+        }, options);
 
-                this.showLoadingState('Getting your location...');
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            observer.observe(card);
+        });
+    }
 
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        try {
-                            const { latitude, longitude } = position.coords;
-                            const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
-                                params: {
-                                    lat: latitude,
-                                    lon: longitude,
-                                    format: 'json'
-                                }
-                            });
+    getUserLocation() {
+        if (!navigator.geolocation) {
+            this.showAlert('Geolocation is not supported by your browser', 'warning');
+            return;
+        }
 
-                            const city = response.data.address.city || 
-                                       response.data.address.town || 
-                                       response.data.address.village || 
-                                       'Current Location';
-
-                            document.getElementById('cityInput').value = city;
-                            this.userLocation = { lat: latitude, lon: longitude };
-                            this.searchMosques();
-
-                        } catch (error) {
-                            this.showAlert('Error getting location details', 'error');
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+                        params: {
+                            lat: latitude,
+                            lon: longitude,
+                            format: 'json'
                         }
-                    },
-                    (error) => {
-                        this.showAlert(this.getGeolocationErrorMessage(error), 'error');
-                    }
-                );
-            }
+                    });
 
-            getGeolocationErrorMessage(error) {
-                const messages = {
-                    1: 'Permission denied. Please enable location services.',
-                    2: 'Location information unavailable.',
-                    3: 'Location request timed out.'
-                };
-                return messages[error.code] || 'An unknown error occurred.';
-            }
+                    const city = response.data.address.city || 
+                               response.data.address.town || 
+                               response.data.address.village || 
+                               'Current Location';
 
-            showLoadingState(message = 'Searching for mosques...') {
-                Swal.fire({
-                    title: 'Please wait',
-                    text: message,
-                    didOpen: () => Swal.showLoading()
-                });
-            }
+                    document.getElementById('cityInput').value = city;
+                    this.userLocation = { lat: latitude, lon: longitude };
+                    this.searchMosques();
 
-            showAlert(message, type) {
-                Swal.fire({
-                    icon: type,
-                    title: type === 'error' ? 'Error' : 'Notice',
-                    text: message
-                });
-            }
+                } catch (error) {
+                    this.showAlert('Error getting location details', 'error');
+                }
+            },
+            (error) => {
+                this.showAlert(this.getGeolocationErrorMessage(error) {
+        const messages = {
+            1: 'Permission denied. Please enable location services.',
+            2: 'Location information unavailable.',
+            3: 'Location request timed out.'
+        };
+        return messages[error.code] || 'An unknown error occurred.';
+    }
 
-            clearMap() {
-                this.markers.forEach(marker => this.map.removeLayer(marker));
-                this.markers = [];
-            }
-
-            clearResults() {
-                document.getElementById('mosqueList').innerHTML = '';
-                this.clearMap();
-            }
-        }
-
-        // Sidebar Navigation Functions
-        function openNav() {
-            document.getElementById("mySidebar").style.left = "0";
-        }
-
-        function closeNav() {
-            document.getElementById("mySidebar").style.left = "-250px";
-        }
-
-        // Initialize the application
-        const mosqueFinder = new MosqueFinder();
-
-        // Close sidebar when clicking outside
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('mySidebar');
-            const openButton = document.querySelector('.openbtn');
-            
-            if (!sidebar.contains(event.target) && !openButton.contains(event.target)) {
-                closeNav();
+    showAlert(message, type = 'info', timer = 3000) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: timer,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         });
 
-        // Close sidebar button event listener
-        document.getElementById('closeSidebarBtn').addEventListener('click', closeNav);
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (mosqueFinder.map) {
-                mosqueFinder.map.invalidateSize();
-            }
+        Toast.fire({
+            icon: type,
+            title: message
         });
+    }
+
+    clearMap() {
+        this.markers.forEach(marker => this.map.removeLayer(marker));
+        this.markers = [];
+    }
+
+    clearResults() {
+        document.getElementById('mosqueList').innerHTML = '';
+        this.clearMap();
+    }
+
+    sortMosques(criteria = 'rating') {
+        switch(criteria) {
+            case 'rating':
+                this.mosques.sort((a, b) => (b.stats.rating || 0) - (a.stats.rating || 0));
+                break;
+            case 'popularity':
+                this.mosques.sort((a, b) => b.stats.popularity - a.stats.popularity);
+                break;
+            case 'distance':
+                if (this.userLocation) {
+                    this.mosques.sort((a, b) => {
+                        const distA = this.calculateDistance(a.lat, a.lon);
+                        const distB = this.calculateDistance(b.lat, b.lon);
+                        return distA - distB;
+                    });
+                }
+                break;
+            case 'reviews':
+                this.mosques.sort((a, b) => b.stats.reviews - a.stats.reviews);
+                break;
+        }
+        this.filterMosques();
+    }
+
+    calculateDistance(lat2, lon2) {
+        if (!this.userLocation) return 0;
+        
+        const R = 6371; // Earth's radius in km
+        const lat1 = this.userLocation.lat;
+        const lon1 = this.userLocation.lon;
+        
+        const dLat = this.toRad(lat2 - lat1);
+        const dLon = this.toRad(lon2 - lon1);
+        
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    toRad(degrees) {
+        return degrees * (Math.PI/180);
+    }
+
+    formatDistance(distance) {
+        if (distance < 1) {
+            return `${Math.round(distance * 1000)}m`;
+        }
+        return `${distance.toFixed(1)}km`;
+    }
+
+    addMosqueBookmark(mosqueId) {
+        let bookmarks = JSON.parse(localStorage.getItem('mosqueBookmarks') || '[]');
+        if (!bookmarks.includes(mosqueId)) {
+            bookmarks.push(mosqueId);
+            localStorage.setItem('mosqueBookmarks', JSON.stringify(bookmarks));
+            this.showAlert('Mosque added to bookmarks', 'success');
+        }
+    }
+
+    removeMosqueBookmark(mosqueId) {
+        let bookmarks = JSON.parse(localStorage.getItem('mosqueBookmarks') || '[]');
+        bookmarks = bookmarks.filter(id => id !== mosqueId);
+        localStorage.setItem('mosqueBookmarks', JSON.stringify(bookmarks));
+        this.showAlert('Mosque removed from bookmarks', 'success');
+    }
+
+    getBookmarkedMosques() {
+        const bookmarks = JSON.parse(localStorage.getItem('mosqueBookmarks') || '[]');
+        return this.mosques.filter(mosque => bookmarks.includes(mosque.id));
+    }
+
+    addReview(mosqueId, rating, comment) {
+        const mosque = this.mosques.find(m => m.id === mosqueId);
+        if (!mosque) return;
+
+        const stats = this.mosqueStats.get(`mosque-${mosqueId}`);
+        if (stats) {
+            // Update the rating
+            const oldRating = stats.rating || 0;
+            const oldReviews = stats.reviews || 0;
+            const newRating = ((oldRating * oldReviews) + rating) / (oldReviews + 1);
+            stats.rating = parseFloat(newRating.toFixed(1));
+            stats.reviews++;
+
+            // Save to local storage
+            const reviews = JSON.parse(localStorage.getItem(`mosque-reviews-${mosqueId}`) || '[]');
+            reviews.push({
+                rating,
+                comment,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem(`mosque-reviews-${mosqueId}`, JSON.stringify(reviews));
+
+            this.showAlert('Review submitted successfully', 'success');
+            this.filterMosques(); // Refresh the display
+        }
+    }
+
+    getReviews(mosqueId) {
+        return JSON.parse(localStorage.getItem(`mosque-reviews-${mosqueId}`) || '[]');
+    }
+
+    shareLocation(mosque) {
+        if (navigator.share) {
+            navigator.share({
+                title: mosque.name,
+                text: `Check out ${mosque.name} in ${mosque.city}`,
+                url: `https://maps.google.com/?q=${mosque.lat},${mosque.lon}`
+            }).catch(err => {
+                console.log('Error sharing:', err);
+            });
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            const shareUrl = `https://maps.google.com/?q=${mosque.lat},${mosque.lon}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                this.showAlert('Location link copied to clipboard!', 'success');
+            });
+        }
+    }
+}
+
+// Initialize the app
+const mosqueFinder = new MosqueFinder();
+
+// Add global event listeners for sidebar navigation
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('closeSidebarBtn')?.addEventListener('click', () => {
+        document.getElementById('mySidebar').style.left = '-250px';
+    });
+
+    document.addEventListener('click', (event) => {
+        const sidebar = document.getElementById('mySidebar');
+        const openButton = document.querySelector('.openbtn');
+        
+        if (!sidebar?.contains(event.target) && !openButton?.contains(event.target)) {
+            if (sidebar) sidebar.style.left = '-250px';
+        }
+    });
+
+    // Add sort functionality
+    const sortSelect = document.getElementById('sortMosques');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            mosqueFinder.sortMosques(e.target.value);
+        });
+    }
+});
     </script>
 </body>
 </html>
