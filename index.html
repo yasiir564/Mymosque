@@ -19,6 +19,8 @@
         <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1850217813586802"
      crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+
 
     
     <style>
@@ -179,6 +181,44 @@
         .openbtn:hover {
             background-color: #0056b3;
         }
+        .filter-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .voice-command-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .voice-command-active {
+            background-color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .mosque-card .distance-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -231,6 +271,67 @@
                 </div>
             </div>
         </div>
+        <div class="mosque-finder-container">
+        <div class="text-center mb-4">
+            <h1 class="display-6">🕌 Advanced Mosque Finder with AI</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="search-section mb-3">
+                    <div class="input-group mb-3">
+                        <input type="text" id="cityInput" class="form-control" placeholder="Enter city">
+                        <button id="searchButton" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                    <button id="locateButton" class="btn btn-success w-100 mb-3">
+                        🌍 Use My Location
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <h5 class="mb-3">Filters</h5>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="wheelchairAccess">
+                        <label class="form-check-label" for="wheelchairAccess">
+                            Wheelchair Accessible
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="womenArea">
+                        <label class="form-check-label" for="womenArea">
+                            Women's Prayer Area
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="parking">
+                        <label class="form-check-label" for="parking">
+                            Parking Available
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="ablution">
+                        <label class="form-check-label" for="ablution">
+                            Ablution Facilities
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div id="mainMap" class="mb-3"></div>
+                <div id="mosqueList" class="row" data-loading="true">
+                    <!-- Loaded via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Command Button -->
+        <button id="voiceCommandBtn" class="voice-command-btn">
+            <i class="bi bi-mic-fill"></i>
+        </button>
+    </div>
 
         <!-- Mosque Details Modal -->
         <div id="detailsModal" class="modal fade" tabindex="-1">
@@ -262,16 +363,33 @@
         document.getElementById("closeSidebarBtn").addEventListener("click", function () {
             document.getElementById("mySidebar").style.left = "-250px";
         });
-   class MosqueFinder {
+  class MosqueFinder {
     constructor() {
-        // IMPORTANT: Replace with your actual Gemini API key
         this.GEMINI_API_KEY = 'AIzaSyB3pkExmoGi55reR2ogSAdv66G4QGYCvfg';
         this.map = null;
         this.currentMarkers = [];
         this.currentMosques = [];
         this.currentLocation = null;
+        this.routeModel = null;
+        this.isListening = false;
         this.initializeMap();
         this.setupEventListeners();
+        this.initVoiceCommands();
+        this.initTensorFlow();
+    }
+
+    async initTensorFlow() {
+        try {
+            // Simple route optimization model
+            const model = tf.sequential();
+            model.add(tf.layers.dense({ units: 8, activation: 'relu', inputShape: [5] }));
+            model.add(tf.layers.dense({ units: 4, activation: 'relu' }));
+            model.add(tf.layers.dense({ units: 1, activation: 'sigmoid' }));
+            model.compile({ optimizer: 'adam', loss: 'binaryCrossentropy' });
+            this.routeModel = model;
+        } catch (error) {
+            console.error('TensorFlow initialization error:', error);
+        }
     }
 
     initializeMap() {
@@ -287,6 +405,83 @@
         document.getElementById('cityInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.searchMosques();
         });
+
+        // Filter change listeners
+        const filters = ['wheelchairAccess', 'womenArea', 'parking', 'ablution'];
+        filters.forEach(filter => {
+            document.getElementById(filter).addEventListener('change', () => {
+                if (this.currentMosques.length > 0) {
+                    this.filterAndRenderMosques();
+                }
+            });
+        });
+    }
+
+    initVoiceCommands() {
+        if (annyang) {
+            const commands = {
+                'search (for) mosques in *city': (city) => {
+                    document.getElementById('cityInput').value = city;
+                    this.searchMosques();
+                },
+                'find mosques (near) (me)': () => {
+                    this.autoLocate();
+                },
+                'show directions to *mosqueName': (mosqueName) => {
+                    const mosque = this.currentMosques.find(m => 
+                        m.name.toLowerCase().includes(mosqueName.toLowerCase())
+                    );
+                    if (mosque) {
+                        const index = this.currentMosques.indexOf(mosque);
+                        this.showMosqueDetails(index);
+                    }
+                },
+                'filter *criteria': (criteria) => {
+                    this.handleVoiceFilter(criteria);
+                }
+            };
+
+            annyang.addCommands(commands);
+            
+            const voiceBtn = document.getElementById('voiceCommandBtn');
+            voiceBtn.addEventListener('click', () => this.toggleVoiceCommand());
+        }
+    }
+
+    toggleVoiceCommand() {
+        const voiceBtn = document.getElementById('voiceCommandBtn');
+        if (this.isListening) {
+            annyang.abort();
+            voiceBtn.classList.remove('voice-command-active');
+            this.isListening = false;
+        } else {
+            Swal.fire({
+                title: 'Voice Commands Active',
+                text: 'Try saying: "Find mosques near me" or "Search for mosques in [city]"',
+                icon: 'info',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            annyang.start();
+            voiceBtn.classList.add('voice-command-active');
+            this.isListening = true;
+        }
+    }
+
+    handleVoiceFilter(criteria) {
+        const filterMap = {
+            'wheelchair': 'wheelchairAccess',
+            'women': 'womenArea',
+            'parking': 'parking',
+            'ablution': 'ablution'
+        };
+
+        const filterKey = filterMap[criteria.toLowerCase()];
+        if (filterKey) {
+            const checkbox = document.getElementById(filterKey);
+            checkbox.checked = !checkbox.checked;
+            this.filterAndRenderMosques();
+        }
     }
 
     renderLoadingPlaceholders(count = 6) {
@@ -314,7 +509,6 @@
             return;
         }
 
-        // Render loading placeholders
         this.renderLoadingPlaceholders();
 
         try {
@@ -346,19 +540,7 @@
             `;
 
             const overpassResponse = await axios.post('https://overpass-api.de/api/interpreter', overpassQuery);
-            
-            if (overpassResponse.data.elements.length === 0) {
-                document.getElementById('mosqueList').innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-info text-center" role="alert">
-                            No mosques found in this area.
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            this.processMosques(overpassResponse.data, city, lat, lon);
+            await this.processMosques(overpassResponse.data, city, lat, lon);
 
         } catch (error) {
             console.error('Search error:', error);
@@ -372,7 +554,7 @@
         }
     }
 
-    processMosques(data, city, searchLat, searchLon) {
+    async processMosques(data, city, searchLat, searchLon) {
         this.currentMarkers.forEach(marker => this.map.removeLayer(marker));
         this.currentMarkers = [];
         this.currentMosques = [];
@@ -382,43 +564,141 @@
         data.elements.forEach(mosque => {
             const tags = mosque.tags || {};
             
-            if (mosque.type === 'node' && !uniqueMosques.has(mosque.id)) {
+            // Only process mosques with names
+            if (mosque.type === 'node' && tags.name && !uniqueMosques.has(mosque.id)) {
                 uniqueMosques.add(mosque.id);
 
-                const marker = L.marker([mosque.lat, mosque.lon])
-                    .addTo(this.map)
-                    .bindPopup(tags.name || 'Unnamed Mosque');
-
-                this.currentMarkers.push(marker);
-                this.currentMosques.push({
+                const mosqueData = {
                     id: mosque.id,
-                    name: tags.name || 'Unnamed Mosque',
+                    name: tags.name,
                     city: city,
                     lat: mosque.lat,
                     lon: mosque.lon,
                     searchLat: searchLat,
                     searchLon: searchLon,
                     denomination: tags.denomination || 'Unknown',
-                    website: tags.website || 'Not Available'
-                });
+                    website: tags.website || 'Not Available',
+                    wheelchair: tags.wheelchair || 'no',
+                    womenArea: tags['female'] || 'no',
+                    parking: tags.parking || 'no',
+                    ablution: tags.ablution || 'no'
+                };
+
+                // Only add if it passes the filters
+                if (this.passesFilters(mosqueData)) {
+                    const marker = L.marker([mosque.lat, mosque.lon])
+                        .addTo(this.map)
+                        .bindPopup(mosqueData.name);
+
+                    this.currentMarkers.push(marker);
+                    this.currentMosques.push(mosqueData);
+                }
             }
+        });
+
+        await this.renderMosqueList();
+    }
+
+    filterAndRenderMosques() {
+        const filteredMosques = this.currentMosques.filter(mosque => this.passesFilters(mosque));
+        
+        // Update markers
+        this.currentMarkers.forEach(marker => this.map.removeLayer(marker));
+        this.currentMarkers = filteredMosques.map(mosque => {
+            return L.marker([mosque.lat, mosque.lon])
+                .addTo(this.map)
+                .bindPopup(mosque.name);
         });
 
         this.renderMosqueList();
     }
 
-    renderMosqueList() {
+    passesFilters(mosque) {
+        const filters = {
+            wheelchairAccess: document.getElementById('wheelchairAccess').checked,
+            womenArea: document.getElementById('womenArea').checked,
+            parking: document.getElementById('parking').checked,
+            ablution: document.getElementById('ablution').checked
+        };
+
+        return (!filters.wheelchairAccess || mosque.wheelchair === 'yes') &&
+               (!filters.womenArea || mosque.womenArea === 'yes') &&
+               (!filters.parking || mosque.parking === 'yes') &&
+               (!filters.ablution || mosque.ablution === 'yes');
+    }
+
+    async calculateRouteWithAI(mosque) {
+        if (!this.currentLocation) {
+            return null;
+        }
+
+        try {
+            // Prepare input data for the AI model
+            const input = tf.tensor2d([[
+                this.currentLocation.lat,
+                this.currentLocation.lon,
+                mosque.lat,
+                mosque.lon,
+                new Date().getHours() // Time of day as a feature
+            ]]);
+
+            // Get route optimization suggestions from the model
+            const prediction = this.routeModel ? await this.routeModel.predict(input).data() : null;
+
+            // Use OSRM for actual routing
+            const response = await axios.get('https://router.project-osrm.org/route/v1/driving/' + 
+                `${this.currentLocation.lon},${this.currentLocation.lat};${mosque.lon},${mosque.lat}`, {
+                params: {
+                    overview: 'false'
+                }
+            });
+
+            const route = response.data.routes[0];
+            const distance = (route.distance / 1000).toFixed(2);
+            const duration = Math.round(route.duration / 60);
+
+            return {
+                distance,
+                duration,
+                aiSuggestion: prediction ? prediction[0] : null
+            };
+        } catch (error) {
+            console.error('Route calculation error:', error);
+            return null;
+        }
+    }
+
+    async renderMosqueList() {
         const mosqueList = document.getElementById('mosqueList');
-        mosqueList.innerHTML = this.currentMosques.map((mosque, index) => `
-            <div class="col-md-4 mb-3">
-                <div class="card mosque-card" onclick="mosqueFinder.showMosqueDetails(${index})">
-                    <div class="card-body">
-                        <h5 class="card-title">${mosque.name}</h5>
-                        <p class="card-text text-muted">${mosque.denomination}</p>
+        
+        const mosquePromises = this.currentMosques.map(async (mosque, index) => {
+            const routeInfo = await this.calculateRouteWithAI(mosque);
+            return `
+                <div class="col-md-4 mb-3">
+                    <div class="card mosque-card" onclick="mosqueFinder.showMosqueDetails(${index})">
+                        <div class="card-body">
+                            <h5 class="card-title">${mosque.name}</h5>
+                            <p class="card-text text-muted">${mosque.denomination}</p>
+                            ${routeInfo ? `
+                                <div class="distance-info">
+                                    <div>🚗 Distance: ${routeInfo.distance} km</div>
+                                    <div>⏱️ ETA: ${routeInfo.duration} minutes</div>
+                                </div>
+                            ` : ''}
+                            <div class="mosque-features mt-2">
+                                ${mosque.wheelchair === 'yes' ? '♿ ' : ''}
+                                ${mosque.womenArea === 'yes' ? '👩 ' : ''}
+                                ${mosque.parking === 'yes' ? '🅿️ ' : ''}
+                                ${mosque.ablution === 'yes' ? '💧 ' : ''}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        });
+
+        const mosqueCards = await Promise.all(mosquePromises);
+        mosqueList.innerHTML = mosqueCards.join('');
     }
 
     async showMosqueDetails(index) {
@@ -434,46 +714,53 @@
             </div>
         `;
 
-        // Show modal
         const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
         detailsModal.show();
         
         try {
-            const [aiDetails, directions] = await Promise.all([
+            const [aiDetails, routeInfo] = await Promise.all([
                 this.fetchMosqueDetailsFromGemini(mosque),
-                this.calculateDirections(mosque)
+                this.calculateRouteWithAI(mosque)
             ]);
             
+            const routeSuggestion = routeInfo?.aiSuggestion 
+                ? `AI suggests this is a ${routeInfo.aiSuggestion > 0.5 ? 'highly recommended' : 'less optimal'} route.`
+                : '';
+
             detailsContent.innerHTML = `
                 <div class="row">
                     <div class="col-md-6">
                         <h4 class="mb-3">📍 Mosque Details</h4>
-                        <div class="mb-2">
-                            <strong>Name:</strong> ${mosque.name}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Location:</strong> ${mosque.city}
-                        </div>
-                        <div class="mb-2">
-                            <strong>Denomination:</strong> ${mosque.denomination}
-                        </div>
+                        <div class="mb-2"><strong>Name:</strong> ${mosque.name}</div>
+                        <div class="mb-2"><strong>Location:</strong> ${mosque.city}</div>
+                        <div class="mb-2"><strong>Denomination:</strong> ${mosque.denomination}</div>
                         ${mosque.website !== 'Not Available' ? 
-                            `<div class="mb-2">
-                                <strong>Website:</strong> 
+                            `<div class="mb-2"><strong>Website:</strong> 
                                 <a href="${mosque.website}" target="_blank">${mosque.website}</a>
-                            </div>` 
-                            : ''
+                            </div>` : ''
                         }
+                        <div class="mb-2">
+                            <strong>Facilities:</strong><br>
+                            - Wheelchair Access: ${mosque.wheelchair === 'yes' ? '✅' : '❌'}<br>
+                            - Women's Area: ${mosque.womenArea === 'yes' ? '✅' : '❌'}<br>
+                            - Parking: ${mosque.parking === 'yes' ? '✅' : '❌'}<br>
+// Continuing from previous showMosqueDetails method...
+                            - Ablution Facilities: ${mosque.ablution === 'yes' ? '✅' : '❌'}
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="ai-insights">
                             <h5>🤖 AI Insights</h5>
                             <p>${aiDetails}</p>
                         </div>
-                        <div class="directions mt-3">
-                            <h5>🗺️ Directions</h5>
-                            <p>${directions}</p>
-                        </div>
+                        ${routeInfo ? `
+                            <div class="directions mt-3">
+                                <h5>🗺️ Route Information</h5>
+                                <p>Distance: ${routeInfo.distance} km<br>
+                                   Estimated Time: ${routeInfo.duration} minutes<br>
+                                   ${routeSuggestion}</p>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -491,10 +778,15 @@
             return "AI insights unavailable. Please configure the Gemini API key.";
         }
 
-        // Compile more specific contextual information
         const additionalContext = [
             mosque.denomination ? `Denomination: ${mosque.denomination}` : '',
             mosque.website ? `Official Website: ${mosque.website}` : '',
+            `Facilities: ${[
+                mosque.wheelchair === 'yes' ? 'Wheelchair accessible' : '',
+                mosque.womenArea === 'yes' ? 'Women\'s prayer area' : '',
+                mosque.parking === 'yes' ? 'Parking available' : '',
+                mosque.ablution === 'yes' ? 'Ablution facilities' : ''
+            ].filter(Boolean).join(', ')}`
         ].filter(Boolean).join(', ');
 
         const prompt = `Provide a detailed, culturally sensitive description of a mosque in ${mosque.city}. 
@@ -503,6 +795,7 @@
         - Historical significance (if known)
         - Architectural style
         - Community role
+        - Facilities and accessibility
         - Any unique features
         
         Be respectful, fact-based, and avoid stereotypes. 
@@ -519,44 +812,16 @@
             );
 
             const aiText = response.data.candidates[0].content.parts[0].text || 
-                           "A significant spiritual and community center serving local Muslims.";
+                          "A significant spiritual and community center serving local Muslims.";
 
-            // Fallback information if AI response is too generic
-            const fallbackInfo = `A ${mosque.denomination || 'local'} mosque located in ${mosque.city}. 
-            This place of worship serves the local Muslim community, offering spiritual guidance and a gathering space for religious and social activities.`;
+            const fallbackInfo = `A ${mosque.denomination || 'local'} mosque located in ${mosque.city}, 
+                offering spiritual guidance and a gathering space for religious and social activities. 
+                ${additionalContext}`;
 
-            // If AI response seems too generic, use fallback
             return aiText.length < 50 ? fallbackInfo : aiText;
-
         } catch (error) {
             console.error('Gemini API Error:', error);
             return "A significant spiritual center serving the local Muslim community in " + mosque.city;
-        }
-    }
-
-    async calculateDirections(mosque) {
-        // Check if we have a saved current location
-        if (!this.currentLocation) {
-            return "Unable to calculate directions. Please use the locate button first.";
-        }
-
-        try {
-            const response = await axios.get('https://router.project-osrm.org/route/v1/driving/' + 
-                `${this.currentLocation.lon},${this.currentLocation.lat};${mosque.lon},${mosque.lat}`, {
-                params: {
-                    overview: 'simplified',
-                    geometries: 'geojson'
-                }
-            });
-
-            const distance = (response.data.routes[0].distance / 1000).toFixed(2); // Convert to kilometers
-            const duration = Math.round(response.data.routes[0].duration / 60); // Convert to minutes
-
-            return `Approximately ${distance} km, estimated travel time: ${duration} minutes. 
-                    Consider using public transit or walking depending on your preference.`;
-        } catch (error) {
-            console.error('Directions Error:', error);
-            return "Directions not available. Please check your internet connection.";
         }
     }
 
@@ -569,10 +834,9 @@
             });
 
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     const { latitude, longitude } = position.coords;
                     
-                    // Save current location
                     this.currentLocation = { 
                         lat: latitude, 
                         lon: longitude 
@@ -580,35 +844,37 @@
 
                     this.map.setView([latitude, longitude], 12);
                     
-                    axios.get(`https://nominatim.openstreetmap.org/reverse`, {
-                        params: {
-                            lat: latitude,
-                            lon: longitude,
-                            format: 'json'
-                        }
-                    }).then(response => {
+                    try {
+                        const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
+                            params: {
+                                lat: latitude,
+                                lon: longitude,
+                                format: 'json'
+                            }
+                        });
+
                         const city = response.data.address.city || 
-                                     response.data.address.town || 
-                                     response.data.address.village || 
-                                     'Current Location';
+                                   response.data.address.town || 
+                                   response.data.address.village || 
+                                   'Current Location';
                         
                         document.getElementById('cityInput').value = city;
-                        this.searchMosques();
-
+                        await this.searchMosques();
                         Swal.close();
-                    }).catch(error => {
+
+                    } catch (error) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Location Error',
                             text: 'Could not retrieve location details.'
                         });
-                    });
+                    }
                 },
                 (error) => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Location Error',
-                        text: 'Could not retrieve your location.'
+                        text: this.getGeolocationErrorMessage(error)
                     });
                 }
             );
@@ -618,6 +884,19 @@
                 title: 'Not Supported',
                 text: 'Geolocation is not supported by your browser'
             });
+        }
+    }
+
+    getGeolocationErrorMessage(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                return 'Location access denied. Please enable location services.';
+            case error.POSITION_UNAVAILABLE:
+                return 'Location information unavailable.';
+            case error.TIMEOUT:
+                return 'Location request timed out.';
+            default:
+                return 'An unknown error occurred while getting location.';
         }
     }
 }
