@@ -826,19 +826,19 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
     <script>
-        // Initialize required external libraries in HTML:
-// <script src="https://apis.google.com/js/api.js"></script>
-// <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai"></script>
-// <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-// <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-// <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-class MosqueAnalyzer {
-    constructor() {
-        this.genAI = new GoogleGenerativeAI('YOUR_GEMINI_API_KEY');
+      class MosqueAnalyzer {
+    constructor(apiKey) {
+        if (!apiKey) {
+            throw new Error('API key is required for MosqueAnalyzer');
+        }
+        this.genAI = new GoogleGenerativeAI(apiKey);
     }
 
     async analyzeMosque(mosqueData) {
+        if (!mosqueData?.name) {
+            throw new Error('Invalid mosque data provided');
+        }
+
         try {
             const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
             
@@ -865,19 +865,28 @@ class MosqueAnalyzer {
 
 class PrayerTimeManager {
     constructor() {
-        this.apiEndpoint = 'http://api.aladhan.com/v1/timingsByAddress';
+        this.apiEndpoint = 'https://api.aladhan.com/v1/timingsByAddress';
+        this.updateInterval = null;
     }
 
     async getPrayerTimes(latitude, longitude) {
+        if (!latitude || !longitude) {
+            throw new Error('Invalid coordinates provided');
+        }
+
         try {
             const response = await axios.get(this.apiEndpoint, {
                 params: {
                     latitude,
                     longitude,
-                    method: 2, // Islamic Society of North America method
-                    school: 1, // Hanafi
+                    method: 2,
+                    school: 1,
                 }
             });
+
+            if (!response.data?.data?.timings) {
+                throw new Error('Invalid prayer times response');
+            }
 
             return response.data.data.timings;
         } catch (error) {
@@ -887,40 +896,58 @@ class PrayerTimeManager {
     }
 
     startPrayerTimeUpdates(latitude, longitude, callback) {
+        this.stopUpdates();
+        
+        if (typeof callback !== 'function') {
+            throw new Error('Callback must be a function');
+        }
+
         this.updateInterval = setInterval(async () => {
             const times = await this.getPrayerTimes(latitude, longitude);
             if (times) callback(times);
-        }, 3600000); // Update every hour
+        }, 3600000);
     }
 
     stopUpdates() {
-        if (this.updateInterval) clearInterval(this.updateInterval);
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
     }
 }
 
 class MosqueListingManager {
-    constructor() {
-        this.storage = firebase.storage();
-        this.db = firebase.firestore();
+    constructor(firebaseApp) {
+        if (!firebaseApp?.storage || !firebaseApp?.firestore) {
+            throw new Error('Valid Firebase app instance required');
+        }
+        this.storage = firebaseApp.storage();
+        this.db = firebaseApp.firestore();
     }
 
     async addMosqueListing(mosqueData, images) {
+        if (!mosqueData || !Array.isArray(images)) {
+            throw new Error('Invalid mosque data or images');
+        }
+
         try {
-            // Upload images first
             const imageUrls = await Promise.all(
                 images.map(async (image) => {
+                    if (!image?.name) {
+                        throw new Error('Invalid image file');
+                    }
+
                     const fileRef = this.storage.ref(`mosques/${Date.now()}_${image.name}`);
                     await fileRef.put(image);
                     return await fileRef.getDownloadURL();
                 })
             );
 
-            // Add mosque data to Firestore
             const mosqueRef = await this.db.collection('mosques').add({
                 ...mosqueData,
                 images: imageUrls,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'pending' // For moderation
+                status: 'pending'
             });
 
             return mosqueRef.id;
@@ -932,22 +959,33 @@ class MosqueListingManager {
 }
 
 class MosqueFinder {
-    constructor() {
+    constructor(config = {}) {
         this.map = null;
         this.markers = [];
         this.mosques = [];
         this.userLocation = null;
         this.mosqueStats = new Map();
-        this.analyzer = new MosqueAnalyzer();
-        this.prayerManager = new PrayerTimeManager();
-        this.listingManager = new MosqueListingManager();
         
-        this.initializeMap();
-        this.setupEventListeners();
-        this.initializeNewFeatures();
+        try {
+            this.analyzer = new MosqueAnalyzer(config.geminiApiKey);
+            this.prayerManager = new PrayerTimeManager();
+            this.listingManager = new MosqueListingManager(config.firebaseApp);
+            
+            this.initializeMap();
+            this.setupEventListeners();
+            this.initializeNewFeatures();
+        } catch (error) {
+            console.error('MosqueFinder initialization error:', error);
+            throw error;
+        }
     }
 
     initializeMap() {
+        const mapElement = document.getElementById('mainMap');
+        if (!mapElement) {
+            throw new Error('Map element not found');
+        }
+
         this.map = L.map('mainMap').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -970,40 +1008,42 @@ class MosqueFinder {
     }
 
     setupEventListeners() {
-        // Search and location buttons
-        document.getElementById('searchButton')?.addEventListener('click', () => this.searchMosques());
-        document.getElementById('locateButton')?.addEventListener('click', () => this.getUserLocation());
-        document.getElementById('cityInput')?.addEventListener('keypress', (e) => {
+        const searchButton = document.getElementById('searchButton');
+        const locateButton = document.getElementById('locateButton');
+        const cityInput = document.getElementById('cityInput');
+        const sortSelect = document.getElementById('sortMosques');
+
+        searchButton?.addEventListener('click', () => this.searchMosques());
+        locateButton?.addEventListener('click', () => this.getUserLocation());
+        cityInput?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.searchMosques();
         });
 
-        // Filter checkboxes
         ['wheelchairAccess', 'womenArea', 'parking', 'ablution'].forEach(filter => {
-            document.getElementById(filter)?.addEventListener('change', () => {
+            const element = document.getElementById(filter);
+            element?.addEventListener('change', () => {
                 if (this.mosques.length > 0) {
                     this.filterMosques();
                 }
             });
         });
 
-        // Handle window resize
+        sortSelect?.addEventListener('change', (e) => {
+            this.sortMosques(e.target.value);
+        });
+
         window.addEventListener('resize', () => {
             if (this.map) {
                 this.map.invalidateSize();
             }
         });
-
-        // Sort functionality
-        document.getElementById('sortMosques')?.addEventListener('change', (e) => {
-            this.sortMosques(e.target.value);
-        });
     }
 
     updatePrayerTimesUI(times) {
-        const prayerTimesContainer = document.getElementById('prayerTimes');
-        if (!prayerTimesContainer || !times) return;
+        const container = document.getElementById('prayerTimes');
+        if (!container || !times) return;
 
-        prayerTimesContainer.innerHTML = `
+        container.innerHTML = `
             <div class="prayer-times-grid">
                 <div class="prayer-time">
                     <h6>Fajr</h6>
@@ -1061,7 +1101,9 @@ class MosqueFinder {
     }
 
     async searchMosques() {
-        const city = document.getElementById('cityInput')?.value.trim();
+        const cityInput = document.getElementById('cityInput');
+        const city = cityInput?.value?.trim();
+        
         if (!city) {
             this.showAlert('Please enter a city name', 'warning');
             return;
@@ -1069,12 +1111,17 @@ class MosqueFinder {
 
         try {
             const locationData = await this.getCityCoordinates(city);
-            if (!locationData) {
+            if (!locationData?.lat || !locationData?.lon) {
                 throw new Error('Location not found');
             }
 
             this.map.setView([locationData.lat, locationData.lon], 12);
             const mosques = await this.fetchMosques(locationData.lat, locationData.lon);
+            
+            if (!Array.isArray(mosques)) {
+                throw new Error('Invalid mosque data received');
+            }
+
             this.processMosqueData(mosques, city);
         } catch (error) {
             this.showAlert(error.message || 'Error searching for mosques', 'error');
@@ -1191,9 +1238,7 @@ class MosqueFinder {
     }
 
     renderStarRating(rating) {
-        if (!rating) {
-            return '<span class="unknown-rating">No ratings yet</span>';
-        }
+        if (!rating) return '<span class="unknown-rating">No ratings yet</span>';
         
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 >= 0.5;
@@ -1221,8 +1266,7 @@ class MosqueFinder {
             return;
         }
 
-        list.innerHTML = mosques.map((mosque, index) => {
-            const [popularityClass, popularityLabel] = this.getPopularityLabel(mosque.stats.popularity);
+        list.innerHTML = mosques.map((mosque, index) => {const [popularityClass, popularityLabel] = this.getPopularityLabel(mosque.stats.popularity);
             
             return `
                 <div class="col-md-6 col-lg-4 mb-3">
@@ -1261,7 +1305,6 @@ class MosqueFinder {
         const mosque = this.mosques[index];
         if (!mosque) return;
 
-        // Get AI analysis
         const aiAnalysis = await this.analyzer.analyzeMosque(mosque);
         const [popularityClass, popularityLabel] = this.getPopularityLabel(mosque.stats.popularity);
         const modalElement = document.getElementById('mosqueDetailsModal');
@@ -1490,95 +1533,39 @@ class MosqueFinder {
     }
 }
 
-// Initialize dark mode functionality
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        // Check for dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Initialize MosqueFinder with required configuration
+        window.mosqueFinder = new MosqueFinder({
+            geminiApiKey: 'YOUR_GEMINI_API_KEY',
+            firebaseApp: firebase // Assuming Firebase is already initialized
+        });
+    } catch (error) {
+        console.error('Application initialization error:', error);
+        // Show user-friendly error message
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to initialize the application. Please try refreshing the page.',
+                icon: 'error'
+            });
+        } else {
+            alert('Failed to initialize the application. Please try refreshing the page.');
+        }
+    }
+});
+
+// Dark mode toggle functionality
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
 }
-
-// Initialize sharing functionality
-function shareWebsite() {
-    document.getElementById('shareOverlay').style.display = 'flex';
-}
-
-function closeShareOverlay() {
-    document.getElementById('shareOverlay').style.display = 'none';
-}
-
-function copyUrl() {
-    const urlInput = document.getElementById('urlInput');
-    urlInput.select();
-    document.execCommand('copy');
-    closeShareOverlay();
-    
-    Swal.fire({
-        title: 'Copied!',
-        text: 'Link has been copied to clipboard',
-        icon: 'success',
-        confirmButtonText: 'Great',
-        background: 'var(--card-bg)',
-        color: 'var(--text-color)',
-        iconColor: 'var(--primary-color)',
-        showClass: {
-            popup: 'animate__animated animate__fadeIn'
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOut'
-        }
-    });
-}
-
-function shareToSocial(platform) {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent('Check out MosqueFinder Pro - Find mosques near you!');
-    let shareUrl = '';
-
-    switch(platform) {
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
-            break;
-        case 'whatsapp':
-            shareUrl = `https://wa.me/?text=${text}%20${url}`;
-            break;
-        case 'telegram':
-            shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
-            break;
-    }
-
-    window.open(shareUrl, '_blank');
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    // Check for saved dark mode preference
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-
-    // Initialize MosqueFinder
-    window.mosqueFinder = new MosqueFinder();
-
-    // Setup sidebar navigation
-    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
-    const sidebar = document.getElementById('mySidebar');
-
-    if (closeSidebarBtn && sidebar) {
-        closeSidebarBtn.addEventListener('click', () => {
-            sidebar.style.left = '-250px';
-        });
-
-        document.addEventListener('click', (event) => {
-            const openButton = document.querySelector('.openbtn');
-            
-            if (!sidebar.contains(event.target) && !openButton?.contains(event.target)) {
-                sidebar.style.left = '-250px';
-            }
-        });
-    }
-});
     </script>
 </body>
 </html>
