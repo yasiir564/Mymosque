@@ -26,6 +26,9 @@
             --text-color: #333;
             --bg-color: #ffffff;
             --card-bg: #ffffff;
+            --button-hover: #1a5fc7;
+            --button-active: #134a9e;
+            --border-color: #e1e1e1;
         }
 
         .dark-mode {
@@ -34,6 +37,9 @@
             --text-color: #ffffff;
             --bg-color: #1a1a1a;
             --card-bg: #2d2d2d;
+            --button-hover: #3576c4;
+            --button-active: #2860a8;
+            --border-color: #404040;
         }
 
         * {
@@ -47,22 +53,81 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: all 0.3s ease;
+            min-height: 100vh;
         }
 
-        /* Header styles (same as main page) */
+        /* Header Styles */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 50px;
-            background: var(--bg-color);
+            background: var(--card-bg);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        /* Prayer Times Container */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:focus {
+            outline: 3px solid rgba(37,117,252,0.3);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--button-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            background: var(--button-active);
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(37,117,252,0.1);
+        }
+
+        /* Main Container */
         .prayer-container {
             max-width: 1200px;
             margin: 40px auto;
@@ -72,18 +137,44 @@
             gap: 30px;
         }
 
+        /* Location Search */
+        .location-search {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            background: transparent;
+            color: var(--text-color);
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        /* Prayer Times */
         .prayer-times {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .prayer-card {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 15px 20px;
             margin: 10px 0;
             background: linear-gradient(45deg, rgba(37,117,252,0.1), rgba(106,17,203,0.1));
             border-radius: 15px;
@@ -94,57 +185,156 @@
             transform: translateX(10px);
         }
 
-        /* Calendar Container */
-        .calendar-container {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        .prayer-name {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        /* Adhan Player */
+        .prayer-name h4 {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .prayer-name span {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Modern Audio Player */
         .adhan-player {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 20px;
             margin-top: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .adhan-voices {
+        .audio-player {
+            background: linear-gradient(45deg, rgba(37,117,252,0.1), rgba(106,17,203,0.1));
+            border-radius: 15px;
+            padding: 20px;
             margin-top: 20px;
         }
 
-        .voice-option {
+        #adhanSelect {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .audio-controls {
             display: flex;
             align-items: center;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 10px;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .play-pause {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.2s ease;
         }
 
-        .voice-option:hover {
-            background: rgba(37,117,252,0.1);
+        .play-pause:hover {
+            transform: scale(1.05);
+            background: var(--button-hover);
         }
 
-        /* Location Search */
-        .location-search {
+        .progress-bar {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(37,117,252,0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            width: 0;
+        }
+
+        .time-display {
+            font-size: 14px;
+            color: var(--text-color);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(37,117,252,0.2);
+            border-radius: 2px;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 20px;
-            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            border: 2px solid var(--primary-color);
-            border-radius: 25px;
-            background: transparent;
+        .fc {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .fc-header-toolbar {
+            padding: 15px;
+        }
+
+        .fc-button {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .fc-button:hover {
+            background: var(--button-hover) !important;
+        }
+
+        .fc-button:active {
+            background: var(--button-active) !important;
+        }
+
+        .fc-day-today {
+            background: rgba(37,117,252,0.1) !important;
+        }
+
+        .fc-daygrid-day-number {
             color: var(--text-color);
-            margin-top: 10px;
         }
 
         /* Recommendation Banner */
@@ -157,6 +347,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .recommendation h3 {
+            margin-bottom: 8px;
         }
 
         /* Responsive Design */
@@ -169,26 +364,49 @@
         @media (max-width: 768px) {
             .header {
                 padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
             }
             
             .prayer-container {
                 padding: 10px;
             }
+
+            .audio-controls {
+                flex-wrap: wrap;
+            }
+
+            .volume-control {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="logo-container">
             <i class="fas fa-mosque"></i>
             <span class="logo">MosqueFinder Pro</span>
         </div>
         <div class="header-buttons">
-            <button class="btn btn-secondary" onclick="toggleDarkMode()">
+            <button class="btn btn-secondary" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
                 <i class="fas fa-moon"></i>
             </button>
-            <button class="btn btn-secondary" onclick="shareWebsite()">
+            <button class="btn btn-secondary" onclick="shareWebsite()" aria-label="Share website">
                 <i class="fas fa-share-alt"></i>
             </button>
             <button class="btn btn-primary">Sign In</button>
@@ -197,16 +415,20 @@
 
     <main class="prayer-container">
         <div class="left-column">
-            <!-- Location Search -->
             <div class="location-search">
                 <h3>Search Location</h3>
-                <input type="text" class="search-input" placeholder="Enter city name or use current location" id="locationInput">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="Enter city name or use current location" 
+                    id="locationInput"
+                    aria-label="Search location"
+                >
                 <button class="btn btn-primary" onclick="useCurrentLocation()">
                     <i class="fas fa-location-arrow"></i> Use My Location
                 </button>
             </div>
 
-            <!-- Prayer Times -->
             <div class="prayer-times">
                 <h2>Prayer Times</h2>
                 <div id="prayerTimesGrid">
@@ -214,38 +436,54 @@
                 </div>
             </div>
 
-            <!-- Adhan Player -->
             <div class="adhan-player">
                 <h3>Adhan Player</h3>
-                <audio id="adhanPlayer" controls></audio>
-                <div class="adhan-voices">
-                    <h4>Select Voice</h4>
-                    <div class="voice-option" onclick="selectAdhan('makkah')">
-                        <i class="fas fa-volume-up"></i>
-                        <span>Makkah Adhan</span>
-                    </div>
-                    <div class="voice-option" onclick="selectAdhan('madinah')">
-                        <i class="fas fa-volume-up"></i>
-                        <span>Madinah Adhan</span>
+                <div class="audio-player">
+                    <select id="adhanSelect" class="btn btn-secondary" aria-label="Select Adhan">
+                        <option value="makkah">Makkah Adhan - Sheikh Ali Mulla</option>
+                        <option value="madinah">Madinah Adhan - Sheikh Essam Bukhari</option>
+                        <option value="istanbul">Istanbul Adhan - Fatih Mosque</option>
+                        <option value="alaqsa">Al-Aqsa Adhan - Sheikh Mohammad Ahmad</option>
+                        <option value="modern">Modern Style - Mishary Rashid</option>
+                    </select>
+                    
+                    <div class="audio-controls">
+                        <div class="play-pause" role="button" aria-label="Play/Pause">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="time-display">00:00</div>
+                        <div class="progress-bar" role="progressbar" aria-label="Audio progress">
+                            <div class="progress"></div>
+                        </div>
+                        <div class="time-display">00:00</div>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-up"></i>
+                            <input 
+                                type="range" 
+                                class="volume-slider" 
+                                min="0" 
+                                max="100" 
+                                value="100"
+                                aria-label="Volume control"
+                            >
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="right-column">
-            <!-- Islamic Calendar -->
             <div class="calendar-container">
                 <h3>Islamic Calendar</h3>
                 <div id="calendar"></div>
             </div>
 
-            <!-- MosqueFinder Pro Recommendation -->
             <div class="recommendation">
                 <div>
                     <h3>Find Nearby Mosques</h3>
                     <p>Discover mosques in your area with MosqueFinder Pro</p>
                 </div>
-                <button class="btn btn-secondary" onclick="window.location.href='/'">
+                <button class="btn btn-secondary" onclick="window.location.href='/mosques'">
                     Learn More
                 </button>
             </div>
@@ -253,15 +491,23 @@
     </main>
 
     <script>
-        // Initialize Prayer Times
+        // Prayer Times API Integration
         function initializePrayerTimes(latitude, longitude) {
-            // Example API endpoint (replace with actual prayer times API)
-            fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`)
+            const date = new Date();
+            const timestamp = Math.floor(date.getTime() / 1000);
+            
+            fetch(`https://api.aladhan.com/v1/timings/${timestamp}?latitude=${latitude}&longitude=${longitude}&method=2`)
                 .then(response => response.json())
                 .then(data => {
                     updatePrayerTimes(data.data.timings);
+                    updateNextPrayer(data.data.timings);
                 })
                 .catch(error => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Unable to fetch prayer times. Please try again later.',
+                        icon: 'error'
+                    });
                     console.error('Error fetching prayer times:', error);
                 });
         }
@@ -284,16 +530,24 @@
                 const card = document.createElement('div');
                 card.className = 'prayer-card';
                 card.innerHTML = `
-                    <div>
+                    <div class="prayer-name">
                         <h4>${prayer}</h4>
                         <span>${arabicName}</span>
                     </div>
-                    <div>
-                        <span>${timings[prayer]}</span>
+                    <div class="prayer-time">
+                        <span>${formatTime(timings[prayer])}</span>
                     </div>
                 `;
                 prayerTimesGrid.appendChild(card);
             }
+        }
+
+        // Format 24h time to 12h format
+        function formatTime(time24) {
+            const [hours, minutes] = time24.split(':');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const hours12 = hours % 12 || 12;
+            return `${hours12}:${minutes} ${period}`;
         }
 
         // Geolocation
@@ -301,16 +555,124 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     position => {
-                        initializePrayerTimes(position.coords.latitude, position.coords.longitude);
+                        const { latitude, longitude } = position.coords;
+                        initializePrayerTimes(latitude, longitude);
+                        reverseGeocode(latitude, longitude);
                     },
                     error => {
                         Swal.fire({
-                            title: 'Error',
+                            title: 'Location Error',
                             text: 'Unable to get your location. Please enter it manually.',
                             icon: 'error'
                         });
                     }
                 );
+            }
+        }
+
+        // Reverse Geocoding
+        function reverseGeocode(latitude, longitude) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    const locationInput = document.getElementById('locationInput');
+                    locationInput.value = `${data.address.city || data.address.town}, ${data.address.country}`;
+                })
+                .catch(error => console.error('Error in reverse geocoding:', error));
+        }
+
+        // Adhan Player Implementation
+        class AdhanPlayer {
+            constructor() {
+                this.audio = new Audio();
+                this.isPlaying = false;
+                this.currentAdhan = null;
+                this.initializePlayer();
+            }
+
+            initializePlayer() {
+                const playPauseBtn = document.querySelector('.play-pause');
+                const progressBar = document.querySelector('.progress-bar');
+                const progress = document.querySelector('.progress');
+                const timeDisplays = document.querySelectorAll('.time-display');
+                const volumeSlider = document.querySelector('.volume-slider');
+                const adhanSelect = document.getElementById('adhanSelect');
+
+                // Play/Pause functionality
+                playPauseBtn.addEventListener('click', () => {
+                    if (this.isPlaying) {
+                        this.audio.pause();
+                    } else {
+                        if (!this.currentAdhan) {
+                            this.loadAdhan(adhanSelect.value);
+                        }
+                        this.audio.play();
+                    }
+                });
+
+                // Update play/pause state
+                this.audio.addEventListener('play', () => {
+                    this.isPlaying = true;
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                });
+
+                this.audio.addEventListener('pause', () => {
+                    this.isPlaying = false;
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                });
+
+                // Progress bar updates
+                this.audio.addEventListener('timeupdate', () => {
+                    if (this.audio.duration) {
+                        const percent = (this.audio.currentTime / this.audio.duration) * 100;
+                        progress.style.width = `${percent}%`;
+                        timeDisplays[0].textContent = this.formatTime(this.audio.currentTime);
+                    }
+                });
+
+                this.audio.addEventListener('loadedmetadata', () => {
+                    timeDisplays[1].textContent = this.formatTime(this.audio.duration);
+                });
+
+                // Progress bar interaction
+                progressBar.addEventListener('click', (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    this.audio.currentTime = percent * this.audio.duration;
+                });
+
+                // Volume control
+                volumeSlider.addEventListener('input', (e) => {
+                    this.audio.volume = e.target.value / 100;
+                });
+
+                // Adhan selection
+                adhanSelect.addEventListener('change', (e) => {
+                    this.loadAdhan(e.target.value);
+                });
+            }
+
+            formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+
+            loadAdhan(type) {
+                const adhanSources = {
+                    makkah: 'https://islamic-audio.cdn.com/adhan/makkah.mp3',
+                    madinah: 'https://islamic-audio.cdn.com/adhan/madinah.mp3',
+                    istanbul: 'https://islamic-audio.cdn.com/adhan/istanbul.mp3',
+                    alaqsa: 'https://islamic-audio.cdn.com/adhan/alaqsa.mp3',
+                    modern: 'https://islamic-audio.cdn.com/adhan/mishary.mp3'
+                };
+
+                this.currentAdhan = type;
+                this.audio.src = adhanSources[type];
+                this.audio.load();
+                if (this.isPlaying) {
+                    this.audio.play();
+                }
             }
         }
 
@@ -324,22 +686,25 @@
                     center: 'title',
                     right: 'dayGridMonth,dayGridWeek'
                 },
-                events: [] // Add Islamic dates and events here
+                events: function(info, successCallback) {
+                    const start = info.start.toISOString().split('T')[0];
+                    const end = info.end.toISOString().split('T')[0];
+                    
+                    fetch(`https://api.aladhan.com/v1/hijriCalendarByCity/${start}/${end}?city=London&country=UK&method=2`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const events = data.data.map(day => ({
+                                title: `${day.hijri.day} ${day.hijri.month.en}`,
+                                start: day.gregorian.date,
+                                className: 'islamic-date'
+                            }));
+                            successCallback(events);
+                        })
+                        .catch(error => console.error('Error fetching calendar data:', error));
+                }
             });
             calendar.render();
         });
-
-        // Adhan Player
-        function selectAdhan(type) {
-            const player = document.getElementById('adhanPlayer');
-            // Replace with actual Adhan audio URLs
-            const adhans = {
-                makkah: 'path_to_makkah_adhan.mp3',
-                madinah: 'path_to_madinah_adhan.mp3'
-            };
-            player.src = adhans[type];
-            player.play();
-        }
 
         // Dark Mode Toggle
         function toggleDarkMode() {
@@ -347,12 +712,41 @@
             localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
         }
 
+        // Share Website
+        function shareWebsite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'MosqueFinder Pro',
+                    text: 'Check prayer times and find nearby mosques!',
+                    url: window.location.href
+                })
+                .catch(error => console.error('Error sharing:', error));
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const dummy = document.createElement('input');
+                dummy.value = window.location.href;
+                document.body.appendChild(dummy);
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                
+                Swal.fire({
+                    title: 'Link Copied!',
+                    text: 'Share the website link with others',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+
         // Check for saved dark mode preference
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
         }
 
-        // Initialize with user's location
+        // Initialize the page
+        const player = new AdhanPlayer();
         useCurrentLocation();
     </script>
 </body>
