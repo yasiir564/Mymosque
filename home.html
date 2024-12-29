@@ -310,6 +310,156 @@
             75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
             100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
         }
+    ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Share Overlay */
+        .share-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .share-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .share-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .share-overlay.active .share-container {
+            transform: translateY(0);
+        }
+
+        .share-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .share-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .share-button:hover {
+            transform: translateY(-5px);
+        }
+
+        .copy-link {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .copy-link input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        /* Modified Support Section */
+        .support-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px;
+            gap: 50px;
+        }
+
+        .support-content {
+            flex: 1;
+        }
+
+        .support-image {
+            flex: 1;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Footer Links */
+        .quick-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            position: relative;
+            display: block;
+            margin: 10px 0;
+            transition: color 0.3s ease;
+        }
+
+        .quick-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .quick-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .quick-links a:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -379,14 +529,46 @@
         </div>
     </section>
 
-    <!-- Support Section -->
-    <section class="support-section">
-        <div class="support-card">
+   <section class="support-section">
+        <div class="support-content">
             <h2 class="section-title">Support Us</h2>
             <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
             <button class="btn btn-primary" style="margin-top: 20px;">Become a Supporter</button>
         </div>
+        <div class="support-image">
+            <img src="/api/placeholder/400/400" alt="Support illustration" />
+        </div>
     </section>
+
+    <!-- Share Overlay -->
+    <div class="share-overlay" id="shareOverlay">
+        <div class="share-container">
+            <span class="share-close" onclick="closeShareOverlay()">×</span>
+            <h3>Share MosqueFinder Pro</h3>
+            <div class="share-buttons">
+                <div class="share-button" onclick="shareToSocial('facebook')">
+                    <i class="fab fa-facebook" style="color: #1877f2;"></i>
+                    <span>Facebook</span>
+                </div>
+                <div class="share-button" onclick="shareToSocial('twitter')">
+                    <i class="fab fa-twitter" style="color: #1da1f2;"></i>
+                    <span>Twitter</span>
+                </div>
+                <div class="share-button" onclick="shareToSocial('whatsapp')">
+                    <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                    <span>WhatsApp</span>
+                </div>
+                <div class="share-button" onclick="shareToSocial('telegram')">
+                    <i class="fab fa-telegram" style="color: #0088cc;"></i>
+                    <span>Telegram</span>
+                </div>
+            </div>
+            <div class="copy-link">
+                <input type="text" id="shareUrl" readonly value="https://mosquefinder.pro" />
+                <button class="btn btn-primary" onclick="copyShareLink()">Copy</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -395,12 +577,12 @@
                 <h3>About Us</h3>
                 <p>MosqueFinder Pro helps Muslims find mosques and halal restaurants anywhere in the world.</p>
             </div>
-            <div class="footer-section">
+            <div class="footer-section quick-links">
                 <h3>Quick Links</h3>
-                <p>Home</p>
-                <p>About</p>
-                <p>Contact</p>
-                <p>Privacy Policy</p>
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+                <a href="/privacy">Privacy Policy</a>
             </div>
             <div class="footer-section">
                 <h3>Newsletter</h3>
@@ -419,112 +601,233 @@
 
     <script>
         // Animated Text with cool transition
-        const texts = [
-            'Find Mosques Near You 🕌',
-            'Discover Halal Restaurants 🍽️',
-            'Get Prayer Times ⏰',
-            'Listen to Adhan 🎵'
-        ];
-        let currentIndex = 0;
-        const animatedText = document.getElementById('animatedText');
+const texts = [
+    'Find Mosques Near You 🕌',
+    'Discover Halal Restaurants 🍽️',
+    'Get Prayer Times ⏰',
+    'Listen to Adhan 🎵'
+];
+let currentIndex = 0;
+const animatedText = document.getElementById('animatedText');
 
-        function updateText() {animatedText.style.opacity = '0';
-            animatedText.style.transform = 'translateY(20px)';
-            
+function updateText() {
+    animatedText.style.opacity = '0';
+    animatedText.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+        currentIndex = (currentIndex + 1) % texts.length;
+        animatedText.textContent = texts[currentIndex];
+        animatedText.style.opacity = '1';
+        animatedText.style.transform = 'translateY(0)';
+    }, 500);
+}
+
+setInterval(updateText, 3000);
+
+// Dark Mode Toggle with localStorage support
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    
+    // Update meta theme color for mobile browsers
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (document.body.classList.contains('dark-mode')) {
+        metaThemeColor?.setAttribute('content', '#1a1a1a');
+    } else {
+        metaThemeColor?.setAttribute('content', '#ffffff');
+    }
+}
+
+// Check for saved dark mode preference on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+});
+
+// Share Functionality
+function shareWebsite() {
+    document.getElementById('shareOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeShareOverlay() {
+    document.getElementById('shareOverlay').classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
+}
+
+function shareToSocial(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('Find mosques near you with AI-powered insights!');
+    let shareUrl = '';
+
+    switch(platform) {
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+            break;
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${text}%20${url}`;
+            break;
+        case 'telegram':
+            shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+            break;
+    }
+
+    window.open(shareUrl, '_blank');
+}
+
+function copyShareLink() {
+    const shareInput = document.getElementById('shareUrl');
+    shareInput.select();
+    document.execCommand('copy');
+    
+    // Show success message
+    const copyButton = shareInput.nextElementSibling;
+    const originalText = copyButton.textContent;
+    copyButton.textContent = 'Copied!';
+    copyButton.style.backgroundColor = '#4CAF50';
+    
+    setTimeout(() => {
+        copyButton.textContent = originalText;
+        copyButton.style.backgroundColor = '';
+    }, 2000);
+}
+
+// Close share overlay when clicking outside
+document.getElementById('shareOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeShareOverlay();
+    }
+});
+
+// Escape key closes share overlay
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('shareOverlay').classList.contains('active')) {
+        closeShareOverlay();
+    }
+});
+
+// Announcement Bar
+function closeAnnouncement() {
+    const announcement = document.getElementById('announcement');
+    announcement.style.height = announcement.offsetHeight + 'px';
+    announcement.style.opacity = '0';
+    announcement.style.padding = '0';
+    
+    setTimeout(() => {
+        announcement.style.height = '0';
+    }, 300);
+
+    setTimeout(() => {
+        announcement.style.display = 'none';
+    }, 600);
+}
+
+// Smooth scroll for navigation with offset for header
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const headerOffset = document.querySelector('.header').offsetHeight;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition - headerOffset;
+
+        window.scrollBy({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    });
+});
+
+// Intersection Observer for fade-in animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target); // Stop observing once animated
+        }
+    });
+}, observerOptions);
+
+// Observe all animatable elements
+const animatableElements = document.querySelectorAll('.tool-card, .support-content, .support-image');
+animatableElements.forEach(element => {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(20px)';
+    observer.observe(element);
+});
+
+// Newsletter Form Handling with validation
+document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const emailInput = this.querySelector('input[type="email"]');
+    const email = emailInput.value.trim();
+    
+    if (email && isValidEmail(email)) {
+        // Show success message
+        showNotification('Thank you for subscribing! We\'ll keep you updated.', 'success');
+        this.reset();
+    } else {
+        // Show error message
+        showNotification('Please enter a valid email address.', 'error');
+        emailInput.focus();
+    }
+});
+
+// Email validation helper
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Notification system
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Remove notification after delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add loading animation for images
+document.querySelectorAll('img').forEach(img => {
+    img.addEventListener('load', function() {
+        this.classList.add('loaded');
+    });
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for URL hash and scroll to section
+    if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
             setTimeout(() => {
-                currentIndex = (currentIndex + 1) % texts.length;
-                animatedText.textContent = texts[currentIndex];
-                animatedText.style.opacity = '1';
-                animatedText.style.transform = 'translateY(0)';
-            }, 500);
+                target.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
         }
-
-        setInterval(updateText, 3000);
-
-        // Dark Mode Toggle with localStorage support
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        }
-
-        // Check for saved dark mode preference
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
-
-        // Share Functionality
-        function shareWebsite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'MosqueFinder Pro',
-                    text: 'Find mosques near you with AI-powered insights!',
-                    url: window.location.href
-                }).catch((error) => console.log('Error sharing:', error));
-            }
-        }
-
-        // Close Announcement Bar
-        function closeAnnouncement() {
-            const announcement = document.getElementById('announcement');
-            announcement.style.height = announcement.offsetHeight + 'px';
-            announcement.style.opacity = '0';
-            announcement.style.padding = '0';
-            
-            setTimeout(() => {
-                announcement.style.height = '0';
-            }, 300);
-
-            setTimeout(() => {
-                announcement.style.display = 'none';
-            }, 600);
-            
-            // Save preference to localStorage
-            localStorage.setItem('announcementClosed', 'true');
-        }
-
-        // Check if announcement was previously closed
-        if (localStorage.getItem('announcementClosed') === 'true') {
-            document.getElementById('announcement').style.display = 'none';
-        }
-
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Intersection Observer for fade-in animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-
-        // Observe all tool cards
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            observer.observe(card);
-        });
-
-        // Newsletter Form Handling
-        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = this.querySelector('input[type="email"]').value;
-            if (email) {
-                alert('Thank you for subscribing! We\'ll keep you updated.');
-                this.reset();
-            }
-        });
+    }
+    
+    // Initialize any components that need it
+    updateText(); // Start text animation immediately
+});
     </script>
 </body>
 </html>
