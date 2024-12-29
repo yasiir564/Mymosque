@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Times - MosqueFinder Pro</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js"></script>
+    
+    <!-- Calendar -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.3/main.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2575fc;
+            --secondary-color: #6a11cb;
+            --text-color: #333;
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --primary-color: #4a90e2;
+            --secondary-color: #7c4dff;
+            --text-color: #ffffff;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Header styles (same as main page) */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Prayer Times Container */
+        .prayer-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .prayer-times {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .prayer-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(45deg, rgba(37,117,252,0.1), rgba(106,17,203,0.1));
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .prayer-card:hover {
+            transform: translateX(10px);
+        }
+
+        /* Calendar Container */
+        .calendar-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Adhan Player */
+        .adhan-player {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .adhan-voices {
+            margin-top: 20px;
+        }
+
+        .voice-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .voice-option:hover {
+            background: rgba(37,117,252,0.1);
+        }
+
+        /* Location Search */
+        .location-search {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            background: transparent;
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        /* Recommendation Banner */
+        .recommendation {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .prayer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .prayer-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <i class="fas fa-mosque"></i>
+            <span class="logo">MosqueFinder Pro</span>
+        </div>
+        <div class="header-buttons">
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-secondary" onclick="shareWebsite()">
+                <i class="fas fa-share-alt"></i>
+            </button>
+            <button class="btn btn-primary">Sign In</button>
+        </div>
+    </header>
+
+    <main class="prayer-container">
+        <div class="left-column">
+            <!-- Location Search -->
+            <div class="location-search">
+                <h3>Search Location</h3>
+                <input type="text" class="search-input" placeholder="Enter city name or use current location" id="locationInput">
+                <button class="btn btn-primary" onclick="useCurrentLocation()">
+                    <i class="fas fa-location-arrow"></i> Use My Location
+                </button>
+            </div>
+
+            <!-- Prayer Times -->
+            <div class="prayer-times">
+                <h2>Prayer Times</h2>
+                <div id="prayerTimesGrid">
+                    <!-- Prayer times will be populated here -->
+                </div>
+            </div>
+
+            <!-- Adhan Player -->
+            <div class="adhan-player">
+                <h3>Adhan Player</h3>
+                <audio id="adhanPlayer" controls></audio>
+                <div class="adhan-voices">
+                    <h4>Select Voice</h4>
+                    <div class="voice-option" onclick="selectAdhan('makkah')">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Makkah Adhan</span>
+                    </div>
+                    <div class="voice-option" onclick="selectAdhan('madinah')">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Madinah Adhan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <!-- Islamic Calendar -->
+            <div class="calendar-container">
+                <h3>Islamic Calendar</h3>
+                <div id="calendar"></div>
+            </div>
+
+            <!-- MosqueFinder Pro Recommendation -->
+            <div class="recommendation">
+                <div>
+                    <h3>Find Nearby Mosques</h3>
+                    <p>Discover mosques in your area with MosqueFinder Pro</p>
+                </div>
+                <button class="btn btn-secondary" onclick="window.location.href='/'">
+                    Learn More
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Prayer Times
+        function initializePrayerTimes(latitude, longitude) {
+            // Example API endpoint (replace with actual prayer times API)
+            fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`)
+                .then(response => response.json())
+                .then(data => {
+                    updatePrayerTimes(data.data.timings);
+                })
+                .catch(error => {
+                    console.error('Error fetching prayer times:', error);
+                });
+        }
+
+        // Update Prayer Times Display
+        function updatePrayerTimes(timings) {
+            const prayerTimesGrid = document.getElementById('prayerTimesGrid');
+            prayerTimesGrid.innerHTML = '';
+
+            const prayers = {
+                Fajr: 'فجر',
+                Sunrise: 'شروق',
+                Dhuhr: 'ظهر',
+                Asr: 'عصر',
+                Maghrib: 'مغرب',
+                Isha: 'عشاء'
+            };
+
+            for (const [prayer, arabicName] of Object.entries(prayers)) {
+                const card = document.createElement('div');
+                card.className = 'prayer-card';
+                card.innerHTML = `
+                    <div>
+                        <h4>${prayer}</h4>
+                        <span>${arabicName}</span>
+                    </div>
+                    <div>
+                        <span>${timings[prayer]}</span>
+                    </div>
+                `;
+                prayerTimesGrid.appendChild(card);
+            }
+        }
+
+        // Geolocation
+        function useCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        initializePrayerTimes(position.coords.latitude, position.coords.longitude);
+                    },
+                    error => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Unable to get your location. Please enter it manually.',
+                            icon: 'error'
+                        });
+                    }
+                );
+            }
+        }
+
+        // Initialize Calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek'
+                },
+                events: [] // Add Islamic dates and events here
+            });
+            calendar.render();
+        });
+
+        // Adhan Player
+        function selectAdhan(type) {
+            const player = document.getElementById('adhanPlayer');
+            // Replace with actual Adhan audio URLs
+            const adhans = {
+                makkah: 'path_to_makkah_adhan.mp3',
+                madinah: 'path_to_madinah_adhan.mp3'
+            };
+            player.src = adhans[type];
+            player.play();
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Initialize with user's location
+        useCurrentLocation();
+    </script>
+</body>
+</html>
