@@ -42,25 +42,52 @@
             transition: all 0.3s ease;
         }
 
-        /* Announcement Bar */
-        .announcement-bar {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: 500;
-            position: relative;
-            transition: all 0.3s ease;
-        }
+       /* Announcement Bar */
+.announcement-bar {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+}
 
-        .close-announcement {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 18px;
-        }
+/* Close button */
+.close-announcement {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .announcement-bar {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .close-announcement {
+        font-size: 16px;
+        right: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .announcement-bar {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .close-announcement {
+        font-size: 14px;
+        right: 10px;
+    }
+}
+
 
         /* Header */
         .header {
