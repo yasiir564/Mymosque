@@ -310,267 +310,83 @@
             75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
             100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
         }
-    ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-color);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-        }
-
-        /* Share Overlay */
-        .share-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .share-container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-
-        .share-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .share-overlay.active .share-container {
-            transform: translateY(0);
-        }
-
-        .share-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            cursor: pointer;
-            font-size: 24px;
-            color: var(--text-color);
-        }
-
-        .share-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .share-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .share-button:hover {
-            transform: translateY(-5px);
-        }
-
-        .copy-link {
-            display: flex;
-            gap: 10px;
-            background: var(--bg-color);
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .copy-link input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            color: var(--text-color);
-        }
-
-        /* Modified Support Section */
-        .support-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 50px;
-            gap: 50px;
-        }
-
-        .support-content {
-            flex: 1;
-        }
-
-        .support-image {
-            flex: 1;
-            position: relative;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        /* Footer Links */
-        .quick-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            position: relative;
-            display: block;
-            margin: 10px 0;
-            transition: color 0.3s ease;
-        }
-
-        .quick-links a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -2px;
-            left: 0;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            transition: width 0.3s ease;
-        }
-
-        .quick-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .quick-links a:hover::after {
-            width: 100%;
-        }
     </style>
 </head>
 <body>
+    
     <!-- Announcement Bar -->
-    <div class="announcement-bar" id="announcement" role="alert" aria-live="polite">
+    <div class="announcement-bar" id="announcement">
         🎉 New Feature: AI-powered mosque recommendations now available!
-        <button class="close-announcement" onclick="closeAnnouncement()" aria-label="Close announcement">×</button>
+        <span class="close-announcement" onclick="closeAnnouncement()">×</span>
     </div>
 
     <!-- Header -->
     <header class="header">
         <div class="logo-container">
-            <i class="fas fa-mosque" aria-hidden="true"></i>
+            <i class="fas fa-mosque"></i>
             <span class="logo">MosqueFinder Pro</span>
         </div>
-        <nav class="header-buttons">
-            <button class="btn btn-secondary" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-                <i class="fas fa-moon" aria-hidden="true"></i>
+        <div class="header-buttons">
+            <button class="btn btn-secondary" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
             </button>
-            <button class="btn btn-secondary" onclick="shareWebsite()" aria-label="Share website">
-                <i class="fas fa-share-alt" aria-hidden="true"></i>
+            <button class="btn btn-secondary" onclick="shareWebsite()">
+                <i class="fas fa-share-alt"></i>
             </button>
-            <button class="btn btn-primary" type="button">Sign In</button>
-        </nav>
+            <button class="btn btn-primary">Sign In</button>
+        </div>
     </header>
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1 class="animated-text" id="animatedText">Find Mosques Near You</h1>
-            <p>Discover nearby mosques, halal restaurants, and more with AI-powered insights</p>
-            <div class="stats-container">
-                <div class="stat-item">
-                    <div class="stat-number">10K+</div>
-                    <div class="stat-label">Active Users</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">5K+</div>
-                    <div class="stat-label">Mosques Listed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">1M+</div>
-                    <div class="stat-label">Searches</div>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="animated-text" id="animatedText">Find Mosques Near You</h1>
+        <p>Discover nearby mosques, halal restaurants, and more with AI-powered insights</p>
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Active Users</div>
             </div>
-        </section>
-
-        <!-- Tools Section -->
-        <section class="tools-section">
-            <h2 class="section-title">Our Tools</h2>
-            <div class="tools-grid">
-                <a href="/mosque-finder" class="tool-card">
-                    <i class="fas fa-mosque tool-icon" aria-hidden="true"></i>
-                    <h3>Mosque Finder</h3>
-                    <p>Find nearby mosques with prayer times and community reviews</p>
-                </a>
-                <a href="/halal-restaurants" class="tool-card">
-                    <i class="fas fa-utensils tool-icon" aria-hidden="true"></i>
-                    <h3>Halal Restaurants</h3>
-                    <p>Discover halal restaurants in your area with user ratings</p>
-                </a>
-                <a href="/prayer-times" class="tool-card">
-                    <i class="fas fa-clock tool-icon" aria-hidden="true"></i>
-                    <h3>Prayer Times</h3>
-                    <p>Get accurate prayer times and Adhan notifications</p>
-                </a>
+            <div class="stat-item">
+                <div class="stat-number">5K+</div>
+                <div class="stat-label">Mosques Listed</div>
             </div>
-        </section>
-
-        <!-- Support Section -->
-        <section class="support-section">
-            <div class="support-content">
-                <h2 class="section-title">Support Us</h2>
-                <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
-                <button class="btn btn-primary" type="button" style="margin-top: 20px;">Become a Supporter</button>
-            </div>
-            <div class="support-image">
-                <img src="/api/placeholder/400/400" alt="Support illustration" width="400" height="400">
-            </div>
-        </section>
-    </main>
-
-    <!-- Share Overlay -->
-    <div class="share-overlay" id="shareOverlay" role="dialog" aria-labelledby="shareTitle" aria-hidden="true">
-        <div class="share-container">
-            <button class="share-close" onclick="closeShareOverlay()" aria-label="Close share overlay">×</button>
-            <h3 id="shareTitle">Share MosqueFinder Pro</h3>
-            <div class="share-buttons">
-                <button class="share-button" onclick="shareToSocial('facebook')">
-                    <i class="fab fa-facebook" aria-hidden="true" style="color: #1877f2;"></i>
-                    <span>Facebook</span>
-                </button>
-                <button class="share-button" onclick="shareToSocial('twitter')">
-                    <i class="fab fa-twitter" aria-hidden="true" style="color: #1da1f2;"></i>
-                    <span>Twitter</span>
-                </button>
-                <button class="share-button" onclick="shareToSocial('whatsapp')">
-                    <i class="fab fa-whatsapp" aria-hidden="true" style="color: #25d366;"></i>
-                    <span>WhatsApp</span>
-                </button>
-                <button class="share-button" onclick="shareToSocial('telegram')">
-                    <i class="fab fa-telegram" aria-hidden="true" style="color: #0088cc;"></i>
-                    <span>Telegram</span>
-                </button>
-            </div>
-            <div class="copy-link">
-                <input type="text" id="shareUrl" readonly value="https://mosquefinder.pro" aria-label="Share URL">
-                <button class="btn btn-primary" onclick="copyShareLink()">Copy</button>
+            <div class="stat-item">
+                <div class="stat-number">1M+</div>
+                <div class="stat-label">Searches</div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section">
+        <h2 class="section-title">Our Tools</h2>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="window.location.href='/mosque-finder'">
+                <i class="fas fa-mosque tool-icon"></i>
+                <h3>Mosque Finder</h3>
+                <p>Find nearby mosques with prayer times and community reviews</p>
+            </div>
+            <div class="tool-card" onclick="window.location.href='/halal-restaurants'">
+                <i class="fas fa-utensils tool-icon"></i>
+                <h3>Halal Restaurants</h3>
+                <p>Discover halal restaurants in your area with user ratings</p>
+            </div>
+            <div class="tool-card" onclick="window.location.href='/prayer-times'">
+                <i class="fas fa-clock tool-icon"></i>
+                <h3>Prayer Times</h3>
+                <p>Get accurate prayer times and Adhan notifications</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section class="support-section">
+        <div class="support-card">
+            <h2 class="section-title">Support Us</h2>
+            <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
+            <button class="btn btn-primary" style="margin-top: 20px;">Become a Supporter</button>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -579,324 +395,136 @@
                 <h3>About Us</h3>
                 <p>MosqueFinder Pro helps Muslims find mosques and halal restaurants anywhere in the world.</p>
             </div>
-            <div class="footer-section quick-links">
+            <div class="footer-section">
                 <h3>Quick Links</h3>
-                <nav>
-                    <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/contact">Contact</a></li>
-                        <li><a href="/privacy">Privacy Policy</a></li>
-                    </ul>
-                </nav>
+                <p>Home</p>
+                <p>About</p>
+                <p>Contact</p>
+                <p>Privacy Policy</p>
             </div>
             <div class="footer-section">
                 <h3>Newsletter</h3>
                 <p>Stay updated with our latest features</p>
                 <form class="newsletter-form" onsubmit="event.preventDefault();">
-                    <label for="newsletter-email" class="visually-hidden">Email address</label>
-                    <input type="email" id="newsletter-email" placeholder="Enter your email" class="newsletter-input" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                    <input type="email" placeholder="Enter your email" class="newsletter-input">
+                    <button class="btn btn-primary">Subscribe</button>
                 </form>
             </div>
         </div>
     </footer>
 
-    <!-- Decorative Shapes -->
-    <div class="shape shape-1" aria-hidden="true"></div>
-    <div class="shape shape-2" aria-hidden="true"></div>
+    <!-- Shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
 
     <script>
-       // Constants and configurations
-const CONFIG = {
-  animationDelay: 3000,
-  fadeDelay: 500,
-  notificationDuration: 3000,
-  darkModeKey: 'darkMode',
-  themeColors: {
-    light: '#ffffff',
-    dark: '#1a1a1a'
-  }
-};
+        // Animated Text with cool transition
+        const texts = [
+            'Find Mosques Near You 🕌',
+            'Discover Halal Restaurants 🍽️',
+            'Get Prayer Times ⏰',
+            'Listen to Adhan 🎵'
+        ];
+        let currentIndex = 0;
+        const animatedText = document.getElementById('animatedText');
 
-const SHARE_PLATFORMS = {
-  facebook: {
-    url: 'https://www.facebook.com/sharer/sharer.php?u=',
-    requiresText: false
-  },
-  twitter: {
-    url: 'https://twitter.com/intent/tweet?',
-    requiresText: true
-  },
-  whatsapp: {
-    url: 'https://wa.me/?text=',
-    requiresText: true
-  },
-  telegram: {
-    url: 'https://t.me/share/url?',
-    requiresText: true
-  }
-};
+        function updateText() {animatedText.style.opacity = '0';
+            animatedText.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % texts.length;
+                animatedText.textContent = texts[currentIndex];
+                animatedText.style.opacity = '1';
+                animatedText.style.transform = 'translateY(0)';
+            }, 500);
+        }
 
-// Utility functions
-const utils = {
-  isValidEmail: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-  
-  getElement: (selector) => document.querySelector(selector),
-  
-  getAllElements: (selector) => document.querySelectorAll(selector),
-  
-  createElement: (tag, className) => {
-    const element = document.createElement(tag);
-    if (className) element.className = className;
-    return element;
-  }
-};
+        setInterval(updateText, 3000);
 
-// Animated Text Manager
-class TextAnimator {
-  constructor(elementId, texts) {
-    this.element = utils.getElement(elementId);
-    this.texts = texts;
-    this.currentIndex = 0;
-    
-    if (!this.element) {
-      console.error(`Element with id ${elementId} not found`);
-      return;
-    }
-  }
+        // Dark Mode Toggle with localStorage support
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
 
-  updateText() {
-    if (!this.element) return;
-    
-    this.element.style.opacity = '0';
-    this.element.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-      this.currentIndex = (this.currentIndex + 1) % this.texts.length;
-      this.element.textContent = this.texts[this.currentIndex];
-      this.element.style.opacity = '1';
-      this.element.style.transform = 'translateY(0)';
-    }, CONFIG.fadeDelay);
-  }
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
 
-  start() {
-    this.updateText();
-    setInterval(() => this.updateText(), CONFIG.animationDelay);
-  }
-}
+        // Share Functionality
+        function shareWebsite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'MosqueFinder Pro',
+                    text: 'Find mosques near you with AI-powered insights!',
+                    url: window.location.href
+                }).catch((error) => console.log('Error sharing:', error));
+            }
+        }
 
-// Dark Mode Manager
-class DarkModeManager {
-  constructor() {
-    this.metaThemeColor = utils.getElement('meta[name="theme-color"]');
-    this.init();
-  }
+        // Close Announcement Bar
+        function closeAnnouncement() {
+            const announcement = document.getElementById('announcement');
+            announcement.style.height = announcement.offsetHeight + 'px';
+            announcement.style.opacity = '0';
+            announcement.style.padding = '0';
+            
+            setTimeout(() => {
+                announcement.style.height = '0';
+            }, 300);
 
-  init() {
-    const savedDarkMode = localStorage.getItem(CONFIG.darkModeKey);
-    if (savedDarkMode === 'true') {
-      document.body.classList.add('dark-mode');
-      this.updateThemeColor(true);
-    }
-  }
+            setTimeout(() => {
+                announcement.style.display = 'none';
+            }, 600);
+            
+            // Save preference to localStorage
+            localStorage.setItem('announcementClosed', 'true');
+        }
 
-  toggle() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    localStorage.setItem(CONFIG.darkModeKey, isDarkMode);
-    this.updateThemeColor(isDarkMode);
-  }
+        // Check if announcement was previously closed
+        if (localStorage.getItem('announcementClosed') === 'true') {
+            document.getElementById('announcement').style.display = 'none';
+        }
 
-  updateThemeColor(isDarkMode) {
-    if (this.metaThemeColor) {
-      this.metaThemeColor.setAttribute('content', 
-        isDarkMode ? CONFIG.themeColors.dark : CONFIG.themeColors.light);
-    }
-  }
-}
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
 
-// Share Functionality Manager
-class ShareManager {
-  constructor() {
-    this.overlay = utils.getElement('#shareOverlay');
-    this.setupEventListeners();
-  }
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
 
-  setupEventListeners() {
-    // Close on overlay click
-    this.overlay?.addEventListener('click', (e) => {
-      if (e.target === this.overlay) this.close();
-    });
+        // Observe all tool cards
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            observer.observe(card);
+        });
 
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.overlay?.classList.contains('active')) {
-        this.close();
-      }
-    });
-  }
-
-  show() {
-    this.overlay?.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  close() {
-    this.overlay?.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  shareToSocial(platform) {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent('Find mosques near you with AI-powered insights!');
-    const platformConfig = SHARE_PLATFORMS[platform];
-
-    if (!platformConfig) return;
-
-    const shareUrl = platformConfig.requiresText
-      ? `${platformConfig.url}url=${url}&text=${text}`
-      : `${platformConfig.url}${url}`;
-
-    window.open(shareUrl, '_blank');
-  }
-
-  async copyShareLink() {
-    const shareInput = utils.getElement('#shareUrl');
-    const copyButton = shareInput?.nextElementSibling;
-    if (!shareInput || !copyButton) return;
-
-    try {
-      await navigator.clipboard.writeText(shareInput.value);
-      this.showCopySuccess(copyButton);
-    } catch (err) {
-      // Fallback to old method if clipboard API fails
-      shareInput.select();
-      document.execCommand('copy');
-      this.showCopySuccess(copyButton);
-    }
-  }
-
-  showCopySuccess(button) {
-    const originalText = button.textContent;
-    button.textContent = 'Copied!';
-    button.style.backgroundColor = '#4CAF50';
-    
-    setTimeout(() => {
-      button.textContent = originalText;
-      button.style.backgroundColor = '';
-    }, 2000);
-  }
-}
-
-// Notification System
-class NotificationSystem {
-  static show(message, type = 'success') {
-    const notification = utils.createElement('div', `notification ${type}`);
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    requestAnimationFrame(() => notification.classList.add('show'));
-    
-    setTimeout(() => {
-      notification.classList.remove('show');
-      setTimeout(() => notification.remove(), 300);
-    }, CONFIG.notificationDuration);
-  }
-}
-
-// Intersection Observer for animations
-class AnimationObserver {
-  constructor() {
-    this.observer = new IntersectionObserver(this.handleIntersection, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    });
-  }
-
-  handleIntersection(entries) {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        this.unobserve(entry.target);
-      }
-    });
-  }
-
-  observe(elements) {
-    elements.forEach(element => {
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(20px)';
-      this.observer.observe(element);
-    });
-  }
-}
-
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize text animator
-  const textAnimator = new TextAnimator('animatedText', [
-    'Find Mosques Near You 🕌',
-    'Discover Halal Restaurants 🍽️',
-    'Get Prayer Times ⏰',
-    'Listen to Adhan 🎵'
-  ]);
-  textAnimator.start();
-
-  // Initialize dark mode
-  const darkMode = new DarkModeManager();
-  utils.getElement('#darkModeToggle')?.addEventListener('click', () => darkMode.toggle());
-
-  // Initialize share functionality
-  const shareManager = new ShareManager();
-
-  // Initialize animations
-  const animationObserver = new AnimationObserver();
-  animationObserver.observe(utils.getAllElements('.tool-card, .support-content, .support-image'));
-
-  // Setup newsletter form
-  utils.getElement('.newsletter-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const emailInput = e.target.querySelector('input[type="email"]');
-    const email = emailInput?.value.trim();
-    
-    if (email && utils.isValidEmail(email)) {
-      NotificationSystem.show('Thank you for subscribing! We\'ll keep you updated.', 'success');
-      e.target.reset();
-    } else {
-      NotificationSystem.show('Please enter a valid email address.', 'error');
-      emailInput?.focus();
-    }
-  });
-
-  // Initialize smooth scroll
-  utils.getAllElements('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = utils.getElement(anchor.getAttribute('href'));
-      if (!target) return;
-      
-      const headerOffset = utils.getElement('.header')?.offsetHeight ?? 0;
-      const elementPosition = target.getBoundingClientRect().top;
-      const offsetPosition = elementPosition - headerOffset;
-
-      window.scrollBy({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    });
-  });
-
-  // Handle initial hash in URL
-  if (window.location.hash) {
-    const target = utils.getElement(window.location.hash);
-    if (target) {
-      setTimeout(() => {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  }
-});
+        // Newsletter Form Handling
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Thank you for subscribing! We\'ll keep you updated.');
+                this.reset();
+            }
+        });
     </script>
 </body>
 </html>
