@@ -463,108 +463,110 @@
     </style>
 </head>
 <body>
-    
     <!-- Announcement Bar -->
-    <div class="announcement-bar" id="announcement">
+    <div class="announcement-bar" id="announcement" role="alert" aria-live="polite">
         🎉 New Feature: AI-powered mosque recommendations now available!
-        <span class="close-announcement" onclick="closeAnnouncement()">×</span>
+        <button class="close-announcement" onclick="closeAnnouncement()" aria-label="Close announcement">×</button>
     </div>
 
     <!-- Header -->
     <header class="header">
         <div class="logo-container">
-            <i class="fas fa-mosque"></i>
+            <i class="fas fa-mosque" aria-hidden="true"></i>
             <span class="logo">MosqueFinder Pro</span>
         </div>
-        <div class="header-buttons">
-            <button class="btn btn-secondary" onclick="toggleDarkMode()">
-                <i class="fas fa-moon"></i>
+        <nav class="header-buttons">
+            <button class="btn btn-secondary" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+                <i class="fas fa-moon" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-secondary" onclick="shareWebsite()">
-                <i class="fas fa-share-alt"></i>
+            <button class="btn btn-secondary" onclick="shareWebsite()" aria-label="Share website">
+                <i class="fas fa-share-alt" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-primary">Sign In</button>
-        </div>
+            <button class="btn btn-primary" type="button">Sign In</button>
+        </nav>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1 class="animated-text" id="animatedText">Find Mosques Near You</h1>
-        <p>Discover nearby mosques, halal restaurants, and more with AI-powered insights</p>
-        <div class="stats-container">
-            <div class="stat-item">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Active Users</div>
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="animated-text" id="animatedText">Find Mosques Near You</h1>
+            <p>Discover nearby mosques, halal restaurants, and more with AI-powered insights</p>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5K+</div>
+                    <div class="stat-label">Mosques Listed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1M+</div>
+                    <div class="stat-label">Searches</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number">5K+</div>
-                <div class="stat-label">Mosques Listed</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">1M+</div>
-                <div class="stat-label">Searches</div>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Tools Section -->
-    <section class="tools-section">
-        <h2 class="section-title">Our Tools</h2>
-        <div class="tools-grid">
-            <div class="tool-card" onclick="window.location.href='/mosque-finder'">
-                <i class="fas fa-mosque tool-icon"></i>
-                <h3>Mosque Finder</h3>
-                <p>Find nearby mosques with prayer times and community reviews</p>
+        <!-- Tools Section -->
+        <section class="tools-section">
+            <h2 class="section-title">Our Tools</h2>
+            <div class="tools-grid">
+                <a href="/mosque-finder" class="tool-card">
+                    <i class="fas fa-mosque tool-icon" aria-hidden="true"></i>
+                    <h3>Mosque Finder</h3>
+                    <p>Find nearby mosques with prayer times and community reviews</p>
+                </a>
+                <a href="/halal-restaurants" class="tool-card">
+                    <i class="fas fa-utensils tool-icon" aria-hidden="true"></i>
+                    <h3>Halal Restaurants</h3>
+                    <p>Discover halal restaurants in your area with user ratings</p>
+                </a>
+                <a href="/prayer-times" class="tool-card">
+                    <i class="fas fa-clock tool-icon" aria-hidden="true"></i>
+                    <h3>Prayer Times</h3>
+                    <p>Get accurate prayer times and Adhan notifications</p>
+                </a>
             </div>
-            <div class="tool-card" onclick="window.location.href='/halal-restaurants'">
-                <i class="fas fa-utensils tool-icon"></i>
-                <h3>Halal Restaurants</h3>
-                <p>Discover halal restaurants in your area with user ratings</p>
-            </div>
-            <div class="tool-card" onclick="window.location.href='/prayer-times'">
-                <i class="fas fa-clock tool-icon"></i>
-                <h3>Prayer Times</h3>
-                <p>Get accurate prayer times and Adhan notifications</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-   <section class="support-section">
-        <div class="support-content">
-            <h2 class="section-title">Support Us</h2>
-            <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
-            <button class="btn btn-primary" style="margin-top: 20px;">Become a Supporter</button>
-        </div>
-        <div class="support-image">
-            <img src="/api/placeholder/400/400" alt="Support illustration" />
-        </div>
-    </section>
+        <!-- Support Section -->
+        <section class="support-section">
+            <div class="support-content">
+                <h2 class="section-title">Support Us</h2>
+                <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
+                <button class="btn btn-primary" type="button" style="margin-top: 20px;">Become a Supporter</button>
+            </div>
+            <div class="support-image">
+                <img src="/api/placeholder/400/400" alt="Support illustration" width="400" height="400">
+            </div>
+        </section>
+    </main>
 
     <!-- Share Overlay -->
-    <div class="share-overlay" id="shareOverlay">
+    <div class="share-overlay" id="shareOverlay" role="dialog" aria-labelledby="shareTitle" aria-hidden="true">
         <div class="share-container">
-            <span class="share-close" onclick="closeShareOverlay()">×</span>
-            <h3>Share MosqueFinder Pro</h3>
+            <button class="share-close" onclick="closeShareOverlay()" aria-label="Close share overlay">×</button>
+            <h3 id="shareTitle">Share MosqueFinder Pro</h3>
             <div class="share-buttons">
-                <div class="share-button" onclick="shareToSocial('facebook')">
-                    <i class="fab fa-facebook" style="color: #1877f2;"></i>
+                <button class="share-button" onclick="shareToSocial('facebook')">
+                    <i class="fab fa-facebook" aria-hidden="true" style="color: #1877f2;"></i>
                     <span>Facebook</span>
-                </div>
-                <div class="share-button" onclick="shareToSocial('twitter')">
-                    <i class="fab fa-twitter" style="color: #1da1f2;"></i>
+                </button>
+                <button class="share-button" onclick="shareToSocial('twitter')">
+                    <i class="fab fa-twitter" aria-hidden="true" style="color: #1da1f2;"></i>
                     <span>Twitter</span>
-                </div>
-                <div class="share-button" onclick="shareToSocial('whatsapp')">
-                    <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                </button>
+                <button class="share-button" onclick="shareToSocial('whatsapp')">
+                    <i class="fab fa-whatsapp" aria-hidden="true" style="color: #25d366;"></i>
                     <span>WhatsApp</span>
-                </div>
-                <div class="share-button" onclick="shareToSocial('telegram')">
-                    <i class="fab fa-telegram" style="color: #0088cc;"></i>
+                </button>
+                <button class="share-button" onclick="shareToSocial('telegram')">
+                    <i class="fab fa-telegram" aria-hidden="true" style="color: #0088cc;"></i>
                     <span>Telegram</span>
-                </div>
+                </button>
             </div>
             <div class="copy-link">
-                <input type="text" id="shareUrl" readonly value="https://mosquefinder.pro" />
+                <input type="text" id="shareUrl" readonly value="https://mosquefinder.pro" aria-label="Share URL">
                 <button class="btn btn-primary" onclick="copyShareLink()">Copy</button>
             </div>
         </div>
@@ -579,25 +581,30 @@
             </div>
             <div class="footer-section quick-links">
                 <h3>Quick Links</h3>
-                <a href="/">Home</a>
-                <a href="/about">About</a>
-                <a href="/contact">Contact</a>
-                <a href="/privacy">Privacy Policy</a>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </nav>
             </div>
             <div class="footer-section">
                 <h3>Newsletter</h3>
                 <p>Stay updated with our latest features</p>
                 <form class="newsletter-form" onsubmit="event.preventDefault();">
-                    <input type="email" placeholder="Enter your email" class="newsletter-input">
-                    <button class="btn btn-primary">Subscribe</button>
+                    <label for="newsletter-email" class="visually-hidden">Email address</label>
+                    <input type="email" id="newsletter-email" placeholder="Enter your email" class="newsletter-input" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
                 </form>
             </div>
         </div>
     </footer>
 
-    <!-- Shapes -->
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
+    <!-- Decorative Shapes -->
+    <div class="shape shape-1" aria-hidden="true"></div>
+    <div class="shape shape-2" aria-hidden="true"></div>
 
     <script>
         // Animated Text with cool transition
