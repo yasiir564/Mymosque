@@ -581,38 +581,77 @@
     }
 }
         /* Footer */
-        .footer {
-            background: var(--bg-color);
-            padding: 50px 20px;
-            margin-top: 50px;
-        }
+.footer {
+    background: var(--bg-color);
+    padding: 50px 20px;
+    margin-top: 50px;
+}
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+}
 
-        .footer-section {
-            padding: 20px;
-        }
+.footer-section {
+    padding: 20px;
+}
 
-        .newsletter-form {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+.newsletter-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
 
-        .newsletter-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid var(--primary-color);
-            border-radius: 25px;
-            background: transparent;
-            color: var(--text-color);
-        }
+.newsletter-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid var(--primary-color);
+    border-radius: 25px;
+    background: transparent;
+    color: var(--text-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer {
+        padding: 40px 15px;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr; /* Stacks sections vertically on smaller screens */
+        gap: 30px;
+    }
+
+    .newsletter-form {
+        flex-direction: column;
+    }
+
+    .newsletter-input {
+        width: 100%; /* Full width on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .footer {
+        padding: 30px 10px;
+    }
+
+    .footer-content {
+        gap: 20px;
+    }
+
+    .newsletter-form {
+        gap: 15px;
+    }
+
+    .newsletter-input {
+        padding: 8px 12px;
+    }
+}
+
 
         /* Shapes */
         .shape {
@@ -693,70 +732,117 @@
         }
 
         /* Share Overlay */
-        .share-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-        }
+.share-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
 
-        .share-modal {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-        }
+.share-modal {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+}
 
-        .share-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            cursor: pointer;
-            font-size: 24px;
-            color: var(--text-color);
-        }
+.share-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-color);
+}
 
-        .share-options {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
+.share-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
 
-        .share-option {
-            text-align: center;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
+.share-option {
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
 
-        .share-option:hover {
-            background: rgba(37,117,252,0.1);
-        }
+.share-option:hover {
+    background: rgba(37,117,252,0.1);
+}
 
-        .copy-url {
-            display: flex;
-            margin-top: 20px;
-            gap: 10px;
-        }
+.copy-url {
+    display: flex;
+    margin-top: 20px;
+    gap: 10px;
+}
 
-        .url-input {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid var(--primary-color);
-            border-radius: 25px;
-            background: transparent;
-            color: var(--text-color);
-        }
+.url-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--primary-color);
+    border-radius: 25px;
+    background: transparent;
+    color: var(--text-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .share-options {
+        grid-template-columns: repeat(2, 1fr); /* Adjust to two columns on smaller screens */
+    }
+
+    .share-modal {
+        padding: 20px;
+        max-width: 90%; /* Ensure modal takes more width on smaller screens */
+    }
+
+    .share-close {
+        font-size: 20px; /* Smaller close button for smaller screens */
+        top: 10px;
+        right: 10px;
+    }
+
+    .copy-url {
+        flex-direction: column;
+        align-items: stretch; /* Stack input and button vertically */
+    }
+
+    .url-input {
+        margin-bottom: 10px; /* Add space between input and button */
+    }
+}
+
+@media (max-width: 480px) {
+    .share-options {
+        grid-template-columns: 1fr; /* Stack options in a single column */
+    }
+
+    .share-modal {
+        padding: 15px;
+        width: 80%; /* Make the modal more compact on very small screens */
+    }
+
+    .share-close {
+        font-size: 18px; /* Further reduce size of the close button */
+    }
+
+    .url-input {
+        padding: 8px; /* Adjust input padding for smaller screens */
+    }
+}
+
 
         /* Enhanced Footer Links */
         .quick-links a {
