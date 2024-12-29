@@ -310,6 +310,141 @@
             75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
             100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
         }
+     /* Modern Scroll Bar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Enhanced Support Section */
+        .support-section {
+            background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);
+            padding: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+        }
+
+        .support-content {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .support-image {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Share Overlay */
+        .share-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .share-modal {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .share-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .share-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .share-option:hover {
+            background: rgba(37,117,252,0.1);
+        }
+
+        .copy-url {
+            display: flex;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        /* Enhanced Footer Links */
+        .quick-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            position: relative;
+            display: block;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .quick-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .quick-links a:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -379,28 +514,60 @@
         </div>
     </section>
 
-    <!-- Support Section -->
     <section class="support-section">
-        <div class="support-card">
+        <div class="support-content">
             <h2 class="section-title">Support Us</h2>
             <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
             <button class="btn btn-primary" style="margin-top: 20px;">Become a Supporter</button>
         </div>
+        <div class="support-image">
+            <img src="/api/placeholder/400/400" alt="Support MosqueFinder Pro" />
+        </div>
     </section>
 
-    <!-- Footer -->
+    <!-- Share Overlay -->
+    <div class="share-overlay" id="shareOverlay">
+        <div class="share-modal">
+            <span class="share-close" onclick="closeShareOverlay()">×</span>
+            <h3>Share MosqueFinder Pro</h3>
+            <div class="share-options">
+                <div class="share-option" onclick="shareToSocial('facebook')">
+                    <i class="fab fa-facebook-f"></i>
+                    <p>Facebook</p>
+                </div>
+                <div class="share-option" onclick="shareToSocial('twitter')">
+                    <i class="fab fa-twitter"></i>
+                    <p>Twitter</p>
+                </div>
+                <div class="share-option" onclick="shareToSocial('whatsapp')">
+                    <i class="fab fa-whatsapp"></i>
+                    <p>WhatsApp</p>
+                </div>
+                <div class="share-option" onclick="shareToSocial('telegram')">
+                    <i class="fab fa-telegram-plane"></i>
+                    <p>Telegram</p>
+                </div>
+            </div>
+            <div class="copy-url">
+                <input type="text" class="url-input" id="urlInput" readonly value="https://mosquefinder.pro">
+                <button class="btn btn-primary" onclick="copyUrl()">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with Enhanced Links -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-section">
                 <h3>About Us</h3>
                 <p>MosqueFinder Pro helps Muslims find mosques and halal restaurants anywhere in the world.</p>
             </div>
-            <div class="footer-section">
+            <div class="footer-section quick-links">
                 <h3>Quick Links</h3>
-                <p>Home</p>
-                <p>About</p>
-                <p>Contact</p>
-                <p>Privacy Policy</p>
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/contact">Contact</a>
+                <a href="/privacy">Privacy Policy</a>
             </div>
             <div class="footer-section">
                 <h3>Newsletter</h3>
@@ -452,19 +619,46 @@
             document.body.classList.add('dark-mode');
         }
 
-        // Share Functionality
-        function shareWebsite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'MosqueFinder Pro',
-                    text: 'Find mosques near you with AI-powered insights!',
-                    url: window.location.href
-                }).catch((error) => console.log('Error sharing:', error));
+       function shareWebsite() {
+            document.getElementById('shareOverlay').style.display = 'flex';
+        }
+
+        function closeShareOverlay() {
+            document.getElementById('shareOverlay').style.display = 'none';
+        }
+
+        function copyUrl() {
+            const urlInput = document.getElementById('urlInput');
+            urlInput.select();
+            document.execCommand('copy');
+            alert('URL copied to clipboard!');
+        }
+
+        function shareToSocial(platform) {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out MosqueFinder Pro - Find mosques near you!');
+            let shareUrl = '';
+
+            switch(platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${text}%20${url}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+                    break;
             }
+
+            window.open(shareUrl, '_blank');
         }
 
         // Close Announcement Bar
-        function closeAnnouncement() {
+       function closeAnnouncement() {
             const announcement = document.getElementById('announcement');
             announcement.style.height = announcement.offsetHeight + 'px';
             announcement.style.opacity = '0';
@@ -478,14 +672,21 @@
                 announcement.style.display = 'none';
             }, 600);
             
-            // Save preference to localStorage
-            localStorage.setItem('announcementClosed', 'true');
+            // Set a timestamp for when the announcement was closed
+            localStorage.setItem('announcementClosedTime', Date.now());
         }
 
-        // Check if announcement was previously closed
-        if (localStorage.getItem('announcementClosed') === 'true') {
-            document.getElementById('announcement').style.display = 'none';
-        }
+        // Check if announcement should be shown (24 hour cooldown)
+        window.addEventListener('load', () => {
+            const closedTime = localStorage.getItem('announcementClosedTime');
+            const now = Date.now();
+            const hoursSinceClosed = closedTime ? (now - closedTime) / (1000 * 60 * 60) : 25;
+            
+            if (hoursSinceClosed >= 24) {
+                document.getElementById('announcement').style.display = 'block';
+                localStorage.removeItem('announcementClosedTime');
+            }
+        });
 
         // Smooth scroll for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
