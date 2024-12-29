@@ -33,6 +33,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -48,6 +49,17 @@
             padding: 10px;
             text-align: center;
             font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .close-announcement {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
         }
 
         /* Header */
@@ -58,6 +70,9 @@
             padding: 20px 50px;
             background: var(--bg-color);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .logo-container {
@@ -104,6 +119,8 @@
             text-align: center;
             padding: 100px 20px;
             background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);
+            position: relative;
+            overflow: hidden;
         }
 
         .animated-text {
@@ -113,6 +130,8 @@
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            opacity: 1;
+            transition: all 0.5s ease;
         }
 
         .stats-container {
@@ -124,12 +143,19 @@
 
         .stat-item {
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-10px);
         }
 
         .stat-number {
             font-size: 36px;
             font-weight: 700;
-            color: var(--primary-color);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .stat-label {
@@ -163,12 +189,32 @@
             border-radius: 20px;
             padding: 30px;
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
         }
 
         .tool-card:hover {
             transform: translateY(-10px);
+        }
+
+        .tool-card:hover::before {
+            opacity: 0.1;
         }
 
         .tool-icon {
@@ -177,6 +223,8 @@
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
         }
 
         /* Support Section */
@@ -184,6 +232,49 @@
             background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);
             padding: 50px;
             text-align: center;
+        }
+
+        .support-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-color);
+            padding: 50px 20px;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section {
+            padding: 20px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            background: transparent;
+            color: var(--text-color);
         }
 
         /* Shapes */
@@ -223,8 +314,9 @@
 </head>
 <body>
     <!-- Announcement Bar -->
-    <div class="announcement-bar">
+    <div class="announcement-bar" id="announcement">
         🎉 New Feature: AI-powered mosque recommendations now available!
+        <span class="close-announcement" onclick="closeAnnouncement()">×</span>
     </div>
 
     <!-- Header -->
@@ -237,7 +329,7 @@
             <button class="btn btn-secondary" onclick="toggleDarkMode()">
                 <i class="fas fa-moon"></i>
             </button>
-            <button class="btn btn-secondary">
+            <button class="btn btn-secondary" onclick="shareWebsite()">
                 <i class="fas fa-share-alt"></i>
             </button>
             <button class="btn btn-primary">Sign In</button>
@@ -268,17 +360,17 @@
     <section class="tools-section">
         <h2 class="section-title">Our Tools</h2>
         <div class="tools-grid">
-            <div class="tool-card">
+            <div class="tool-card" onclick="window.location.href='/mosque-finder'">
                 <i class="fas fa-mosque tool-icon"></i>
                 <h3>Mosque Finder</h3>
                 <p>Find nearby mosques with prayer times and community reviews</p>
             </div>
-            <div class="tool-card">
+            <div class="tool-card" onclick="window.location.href='/halal-restaurants'">
                 <i class="fas fa-utensils tool-icon"></i>
                 <h3>Halal Restaurants</h3>
                 <p>Discover halal restaurants in your area with user ratings</p>
             </div>
-            <div class="tool-card">
+            <div class="tool-card" onclick="window.location.href='/prayer-times'">
                 <i class="fas fa-clock tool-icon"></i>
                 <h3>Prayer Times</h3>
                 <p>Get accurate prayer times and Adhan notifications</p>
@@ -288,33 +380,75 @@
 
     <!-- Support Section -->
     <section class="support-section">
-        <h2 class="section-title">Need Help?</h2>
-        <p>Our support team is available 24/7 to assist you</p>
-        <button class="btn btn-primary">Contact Support</button>
+        <div class="support-card">
+            <h2 class="section-title">Support Us</h2>
+            <p>MosqueFinder Pro is 100% free to use (even OCR), with no pesky registration required. For our most loyal supporters, a $5.99/month plan unlocks an ad and captcha free experience.</p>
+            <button class="btn btn-primary" style="margin-top: 20px;">Become a Supporter</button>
+        </div>
     </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>MosqueFinder Pro helps Muslims find mosques and halal restaurants anywhere in the world.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <p>Home</p>
+                <p>About</p>
+                <p>Contact</p>
+                <p>Privacy Policy</p>
+            </div>
+            <div class="footer-section">
+                <h3>Newsletter</h3>
+                <p>Stay updated with our latest features</p>
+                <form class="newsletter-form" onsubmit="event.preventDefault();">
+                    <input type="email" placeholder="Enter your email" class="newsletter-input">
+                    <button class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </footer>
 
     <!-- Shapes -->
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
 
     <script>
-        // Animated Text
-        const texts = ['Find Mosques Near You', 'Discover Halal Restaurants', 'Get Prayer Times', 'Listen to Adhan'];
+        // Animated Text with cool transition
+        const texts = [
+            'Find Mosques Near You 🕌',
+            'Discover Halal Restaurants 🍽️',
+            'Get Prayer Times ⏰',
+            'Listen to Adhan 🎵'
+        ];
         let currentIndex = 0;
         const animatedText = document.getElementById('animatedText');
 
-        setInterval(() => {
-            animatedText.style.opacity = '0';
+        function updateText() {animatedText.style.opacity = '0';
+            animatedText.style.transform = 'translateY(20px)';
+            
             setTimeout(() => {
                 currentIndex = (currentIndex + 1) % texts.length;
                 animatedText.textContent = texts[currentIndex];
                 animatedText.style.opacity = '1';
+                animatedText.style.transform = 'translateY(0)';
             }, 500);
-        }, 3000);
+        }
 
-        // Dark Mode Toggle
+        setInterval(updateText, 3000);
+
+        // Dark Mode Toggle with localStorage support
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
         }
 
         // Share Functionality
@@ -324,9 +458,72 @@
                     title: 'MosqueFinder Pro',
                     text: 'Find mosques near you with AI-powered insights!',
                     url: window.location.href
-                });
+                }).catch((error) => console.log('Error sharing:', error));
             }
         }
+
+        // Close Announcement Bar
+        function closeAnnouncement() {
+            const announcement = document.getElementById('announcement');
+            announcement.style.height = announcement.offsetHeight + 'px';
+            announcement.style.opacity = '0';
+            announcement.style.padding = '0';
+            
+            setTimeout(() => {
+                announcement.style.height = '0';
+            }, 300);
+
+            setTimeout(() => {
+                announcement.style.display = 'none';
+            }, 600);
+            
+            // Save preference to localStorage
+            localStorage.setItem('announcementClosed', 'true');
+        }
+
+        // Check if announcement was previously closed
+        if (localStorage.getItem('announcementClosed') === 'true') {
+            document.getElementById('announcement').style.display = 'none';
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        // Observe all tool cards
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            observer.observe(card);
+        });
+
+        // Newsletter Form Handling
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            if (email) {
+                alert('Thank you for subscribing! We\'ll keep you updated.');
+                this.reset();
+            }
+        });
     </script>
 </body>
 </html>
