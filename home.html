@@ -10,6 +10,9 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js"></script>
+
     
 <style>
         :root {
@@ -434,6 +437,29 @@
         font-size: 36px;
     }
 }
+    .tool-card {
+    position: relative;
+    padding-right: 45px !important; /* Make space for the arrow */
+}
+
+.tool-card::after {
+    content: '→';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tool-card:hover::after {
+    opacity: 1;
+    right: 15px;
+}
 
 @media (max-width: 480px) {
     .tools-section {
@@ -842,6 +868,10 @@
         padding: 8px; /* Adjust input padding for smaller screens */
     }
 }
+    .swal2-styled.swal2-confirm {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)) !important;
+    border: none !important;
+}
 
 
         /* Enhanced Footer Links */
@@ -1061,12 +1091,31 @@
             document.getElementById('shareOverlay').style.display = 'none';
         }
 
-        function copyUrl() {
-            const urlInput = document.getElementById('urlInput');
-            urlInput.select();
-            document.execCommand('copy');
-            alert('URL copied to clipboard!');
+       function copyUrl() {
+    const urlInput = document.getElementById('urlInput');
+    urlInput.select();
+    document.execCommand('copy');
+    
+    // Close the share overlay
+    closeShareOverlay();
+    
+    // Show SweetAlert
+    Swal.fire({
+        title: 'Copied!',
+        text: 'Link has been copied to clipboard',
+        icon: 'success',
+        confirmButtonText: 'Great',
+        background: 'var(--card-bg)',
+        color: 'var(--text-color)',
+        iconColor: 'var(--primary-color)',
+        showClass: {
+            popup: 'animate__animated animate__fadeIn'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOut'
         }
+    });
+}
 
         function shareToSocial(platform) {
             const url = encodeURIComponent(window.location.href);
