@@ -445,6 +445,151 @@
         .quick-links a:hover::after {
             width: 100%;
         }
+    /* Advertise Section Styles */
+.advertise-section {
+    background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    margin: 50px 0;
+}
+
+.advertise-section.reverse {
+    flex-direction: row-reverse;
+}
+
+.advertise-content {
+    flex: 1;
+    max-width: 500px;
+}
+
+.advertise-image {
+    flex: 1;
+    max-width: 500px;
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+}
+
+.advertise-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.advertise-image img:hover {
+    transform: scale(1.02);
+}
+
+.advertise-content h2 {
+    margin-bottom: 20px;
+    font-size: 36px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.advertise-content p {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.advertise-features {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 968px) {
+    .advertise-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+
+    .advertise-section.reverse {
+        flex-direction: column;
+    }
+
+    .advertise-content, 
+    .advertise-image {
+        max-width: 100%;
+    }
+
+    .advertise-features {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+}
+
+/* Dark Mode Support */
+.dark-mode .advertise-section {
+    background: linear-gradient(135deg, rgba(37,117,252,0.05) 0%, rgba(106,17,203,0.05) 100%);
+}
+
+.dark-mode .advertise-image img {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Animation for the image */
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-20px); 
+    }
+}
+
+/* Hover Effects */
+.advertise-content .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(37,117,252,0.3);
+}
+
+.feature-item:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+/* Loading Animation */
+.advertise-image.loading {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { 
+        opacity: 0.6; 
+    }
+    50% { 
+        opacity: 1; 
+    }
+    100% { 
+        opacity: 0.6; 
+    }
+}
     </style>
 </head>
 <body>
@@ -524,6 +669,16 @@
             <img src="undraw_showing-support_ixfc.svg" alt="Support MosqueFinder Pro" />
         </div>
     </section>
+    <section class="support-section" style="flex-direction: row-reverse;">
+    <div class="support-content">
+        <h2 class="section-title">Advertise with Us</h2>
+        <p>Reach thousands of engaged Muslims daily through our platform. With over 10,000 active users and 1 million+ searches, MosqueFinder Pro offers targeted advertising opportunities for Islamic businesses, halal restaurants, and community services. Our AI-powered platform ensures your ads reach the right audience at the right time.</p>
+        <button class="btn btn-primary" style="margin-top: 20px;">Get Started</button>
+    </div>
+    <div class="support-image">
+        <img src="/api/placeholder/500/400" alt="Advertise with MosqueFinder Pro" />
+    </div>
+</section>
 
     <!-- Share Overlay -->
     <div class="share-overlay" id="shareOverlay">
