@@ -1164,6 +1164,11 @@
             // Set a timestamp for when the announcement was closed
             localStorage.setItem('announcementClosedTime', Date.now());
         }
+        function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+}
+
 
         // Check if announcement should be shown (24 hour cooldown)
         window.addEventListener('load', () => {
@@ -1186,11 +1191,6 @@
                 });
             });
         });
-
-        function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-}
 
 
         // Intersection Observer for fade-in animations
