@@ -93,7 +93,7 @@
                 background-position: 200% 0;
             }
         }
-              /* Header */
+   /* Header Container */
 .header {
     display: flex;
     justify-content: space-between;
@@ -104,8 +104,10 @@
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: all 0.3s ease;
 }
 
+/* Logo Container */
 .logo-container {
     display: flex;
     align-items: center;
@@ -120,6 +122,7 @@
     -webkit-text-fill-color: transparent;
 }
 
+/* Header Buttons */
 .header-buttons {
     display: flex;
     gap: 15px;
@@ -132,6 +135,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn i {
+    font-size: 16px;
 }
 
 .btn-primary {
@@ -139,10 +149,100 @@
     color: white;
 }
 
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37,117,252,0.2);
+}
+
 .btn-secondary {
     background: transparent;
     border: 2px solid var(--primary-color);
     color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: rgba(37,117,252,0.1);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+    background: none;
+    border: none;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: var(--card-bg);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    display: none;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(37,117,252,0.1);
+}
+
+.close-sidebar {
+    font-size: 24px;
+    color: var(--text-color);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-sidebar:hover {
+    transform: rotate(90deg);
+}
+
+.sidebar .header-buttons {
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
 }
 
 /* Responsive Styles */
@@ -155,50 +255,94 @@
         font-size: 20px;
     }
 
-    .header-buttons {
-        gap: 10px;
-    }
-
     .btn {
-        padding: 8px 18px;
+        padding: 8px 16px;
     }
 }
 
 @media screen and (max-width: 768px) {
     .header {
-        flex-direction: column;
-        padding: 15px;
-        text-align: center;
+        padding: 15px 20px;
     }
 
-    .logo-container {
-        margin-bottom: 15px;
+    .header .header-buttons {
+        display: none;
     }
 
-    .header-buttons {
-        flex-direction: column;
-        gap: 10px;
+    .mobile-menu-toggle {
+        display: block;
     }
 
-    .btn {
-        width: 100%;
-        padding: 12px;
+    .sidebar {
+        display: block;
+    }
+
+    .sidebar.active {
+        right: 0;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .logo {
+        font-size: 18px;
     }
 }
 
 @media screen and (max-width: 480px) {
-    .logo {
-        font-size: 18px;
+    .header {
+        padding: 12px 15px;
     }
 
-    .header-buttons {
-        flex-direction: column;
-        gap: 8px;
+    .sidebar {
+        width: 280px;
     }
 
     .btn {
-        padding: 10px;
+        padding: 8px 14px;
+        font-size: 14px;
     }
+
+    .mobile-menu-toggle {
+        font-size: 20px;
+    }
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .sidebar {
+    background: var(--bg-color);
+}
+
+.dark-mode .sidebar-header {
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+
+/* Animation Classes */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sidebar.active {
+    animation: slideIn 0.3s ease forwards;
+}
+
+.sidebar-overlay.active {
+    animation: fadeIn 0.3s ease forwards;
 }
 
 
@@ -670,25 +814,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo-container">
-            <i class="fas fa-mosque"></i>
-            <span class="logo">MosqueFinder Pro</span>
-        </div>
-        <div class="header-buttons">
-            <button class="btn btn-secondary" onclick="toggleDarkMode()">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="btn btn-secondary" onclick="shareWebsite()">
-                <i class="fas fa-share-alt"></i>
-            </button>
-            <button class="btn btn-primary">Sign In</button>
-              <button class="btn btn-primary" onclick="mosqueFinder.openAddMosqueForm()">
-    <i class="fas fa-plus"></i> Add Mosque
-</button>
-        </div>
-    </header>
+   <header class="header">
+    <div class="logo-container">
+        <i class="fas fa-mosque"></i>
+        <span class="logo">MosqueFinder Pro</span>
+    </div>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="header-buttons">
+        <button class="btn btn-secondary" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="btn btn-secondary" onclick="shareWebsite()">
+            <i class="fas fa-share-alt"></i>
+        </button>
+        <button class="btn btn-primary">Sign In</button>
+    </div>
+</header>
+    <!-- Add sidebar markup -->
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <span class="logo">Menu</span>
+        <button class="close-sidebar" onclick="toggleSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="header-buttons">
+        <button class="btn btn-secondary" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i> Dark Mode
+        </button>
+        <button class="btn btn-secondary" onclick="shareWebsite()">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+        <button class="btn btn-primary">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+    </div>
+</div>
     
         
         <div class="mosque-finder-container">
@@ -860,6 +1024,17 @@
                 }
             });
         });
+
+          function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    
+    // Prevent body scrolling when sidebar is open
+    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+}
 
         // Handle window resize
         window.addEventListener('resize', () => {
