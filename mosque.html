@@ -793,24 +793,23 @@
 </head>
 <body>
    <header class="header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="logo-container">
-                <i class="fas fa-mosque logo-icon"></i>
-                <h1 class="h4 mb-0">MosqueFinder</h1>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <button class="theme-toggle" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="theme-toggle" onclick="showShareModal()">
-                    <i class="fas fa-share-alt"></i>
-                </button>
-                <button class="d-md-none theme-toggle" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+    <div class="logo-container">
+        <i class="fas fa-mosque"></i>
+        <span class="logo">MosqueFinder Pro</span>
+    </div>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="header-buttons">
+        <button class="btn btn-secondary" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="btn btn-secondary" onclick="shareWebsite()">
+            <i class="fas fa-share-alt"></i>
+        </button>
+        <button class="btn btn-primary">Sign In</button>
+    </div>
+</header>
 
     <!-- Mobile Menu -->
     <div class="mobile-menu">
