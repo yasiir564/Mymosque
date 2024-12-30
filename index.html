@@ -1164,10 +1164,19 @@
             // Set a timestamp for when the announcement was closed
             localStorage.setItem('announcementClosedTime', Date.now());
         }
-        function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-}
+         function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Placeholder functions
+        function toggleDarkMode() {
+            alert("Dark mode toggled!");
+        }
+
+        function shareWebsite() {
+            alert("Share functionality triggered!");
+        }
 
 
         // Check if announcement should be shown (24 hour cooldown)
