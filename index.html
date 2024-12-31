@@ -1163,7 +1163,71 @@
         padding: 20px;
     }
 }
-    </style>
+    .faq-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .faq-item {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        color: #333333;
+        cursor: pointer;
+    }
+
+    .faq-answer {
+        margin-top: 15px;
+        display: none;
+        line-height: 1.6;
+        color: #555555;
+        border-top: 1px solid rgba(37, 117, 252, 0.1);
+        padding-top: 15px;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .faq-toggle {
+        font-size: 18px;
+        color: #666666;
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-toggle {
+        transform: rotate(180deg);
+    }
+
+    .faq-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 768px) {
+        .faq-item {
+            padding: 15px;
+        }
+
+        .faq-question {
+            font-size: 14px;
+        }
+
+        .faq-answer {
+            font-size: 14px;
+        }
+    }
+ </style>
 
 </head>
 <body>
@@ -1389,6 +1453,62 @@
         <img src="undraw_hiring_8szx.svg" alt="List Your Business" />
     </div>
 </section>
+    <section class="tools-section" style="background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div class="faq-container">
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    How accurate are the prayer times?
+                    <span class="faq-toggle">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Our prayer times are calculated using precise astronomical data and are regularly verified with local mosques. We use multiple calculation methods and allow you to choose the one preferred by your local Islamic authority.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    How do you verify if restaurants are truly halal?
+                    <span class="faq-toggle">▼</span>
+                </div>
+                <div class="faq-answer">
+                    We verify halal certification from recognized authorities and rely on community reviews and reports. Restaurant owners must provide their halal certification details which we verify before listing them as halal-certified. Users can also report any concerns about a restaurant's halal status.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    What's included in the premium subscription?
+                    <span class="faq-toggle">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Premium subscribers ($2.99/month) get an ad-free experience, advanced mosque search filters, offline access to prayer times, custom alerts for jumah prayers, ability to save favorite locations, and priority customer support.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    How can I list my business on Halal Hub?
+                    <span class="faq-toggle">▼</span>
+                </div>
+                <div class="faq-answer">
+                    You can list your business for $30/month through our business portal. The process is simple: create an account, provide your business details and halal certification (if applicable), choose your subscription plan, and your listing will be live after our verification process.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    Is the Qibla finder accurate worldwide?
+                    <span class="faq-toggle">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Yes, our Qibla finder uses GPS and advanced spherical trigonometry to calculate the exact direction of the Kaaba from any point on Earth. The tool takes into account the curvature of the Earth for maximum accuracy.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
     <!-- Share Overlay -->
     <div class="share-overlay" id="shareOverlay">
@@ -1567,6 +1687,17 @@
         });
     }
 }
+         function toggleFaq(element) {
+        const wasActive = element.classList.contains('active');
+
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        if (!wasActive) {
+            element.classList.add('active');
+        }
+    }
 
         // Close Announcement Bar
        function closeAnnouncement() {
