@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qibla Direction - Halal Hub</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2575fc;
+            --secondary-color: #6a11cb;
+            --text-color: #333;
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --primary-color: #4a90e2;
+            --secondary-color: #7c4dff;
+            --text-color: #ffffff;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Header styles from main page */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Qibla Finder Container */
+        .qibla-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .compass-container {
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+            position: relative;
+            transition: transform 0.5s ease;
+        }
+
+        .compass {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--card-bg);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .compass::before {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .arrow {
+            position: absolute;
+            width: 4px;
+            height: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transform-origin: bottom center;
+            border-radius: 5px;
+        }
+
+        .location-info {
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37,117,252,0.2);
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            padding: 50px 20px;
+            background: linear-gradient(135deg, rgba(37,117,252,0.1) 0%, rgba(106,17,203,0.1) 100%);
+            margin-top: 40px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .benefit-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .benefit-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .compass-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <i class="fas fa-mosque"></i>
+            <span class="logo">Halal Hub</span>
+        </div>
+        <button class="btn" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <div class="qibla-container">
+        <h1 style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Qibla Direction Finder
+        </h1>
+        <p>Find the accurate direction of the Kaaba for your prayers</p>
+
+        <div class="compass-container">
+            <div class="compass">
+                <div class="arrow"></div>
+            </div>
+        </div>
+
+        <div class="location-info">
+            <p>Your Location: <span id="location-text">Detecting...</span></p>
+            <p>Distance to Kaaba: <span id="distance-text">Calculating...</span></p>
+            <p>Qibla Direction: <span id="direction-text">Determining...</span></p>
+        </div>
+
+        <button class="btn" onclick="requestLocation()">
+            <i class="fas fa-location-arrow"></i> Update Location
+        </button>
+    </div>
+
+    <section class="benefits-section">
+        <h2 style="text-align: center; margin-bottom: 30px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Benefits of Using Our Qibla Finder
+        </h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <i class="fas fa-compass benefit-icon"></i>
+                <h3>Precise Direction</h3>
+                <p>Uses advanced GPS and mathematical calculations to provide the most accurate Qibla direction.</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-globe benefit-icon"></i>
+                <h3>Works Worldwide</h3>
+                <p>Accurate anywhere in the world, taking into account the Earth's curvature for precise calculations.</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-mobile-alt benefit-icon"></i>
+                <h3>Real-Time Updates</h3>
+                <p>Updates automatically as you move, ensuring accuracy even while traveling.</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-map-marked-alt benefit-icon"></i>
+                <h3>Location History</h3>
+                <p>Save frequently visited locations for quick access to Qibla direction anywhere.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Kaaba coordinates
+        const KAABA_LAT = 21.422487;
+        const KAABA_LONG = 39.826206;
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(handleLocation, handleError);
+            } else {
+                alert("Geolocation is not supported by your browser");
+            }
+        }
+
+        function handleLocation(position) {
+            const lat1 = position.coords.latitude;
+            const lon1 = position.coords.longitude;
+            
+            // Calculate direction
+            const qiblaDirection = calculateQiblaDirection(lat1, lon1);
+            
+            // Calculate distance
+            const distance = calculateDistance(lat1, lon1, KAABA_LAT, KAABA_LONG);
+            
+            // Update UI
+            document.querySelector('.arrow').style.transform = `rotate(${qiblaDirection}deg)`;
+            document.getElementById('location-text').textContent = `${lat1.toFixed(4)}°N, ${lon1.toFixed(4)}°E`;
+            document.getElementById('distance-text').textContent = `${distance.toFixed(0)} km`;
+            document.getElementById('direction-text').textContent = `${qiblaDirection.toFixed(1)}° from North`;
+        }
+
+        function calculateQiblaDirection(lat1, lon1) {
+            // Convert to radians
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = KAABA_LAT * Math.PI / 180;
+            const Δλ = (KAABA_LONG - lon1) * Math.PI / 180;
+
+            // Calculate qibla direction
+            const y = Math.sin(Δλ);
+            const x = Math.cos(φ1) * Math.tan(φ2) - Math.sin(φ1) * Math.cos(Δλ);
+            const qibla = Math.atan2(y, x) * 180 / Math.PI;
+
+            return (qibla + 360) % 360;
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+
+        function handleError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Please allow location access to find Qibla direction");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable");
+                    break;
+                case error.TIMEOUT:
+                    alert("Location request timed out");
+                    break;
+                default:
+                    alert("An unknown error occurred");
+                    break;
+            }
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Request location on page load
+        requestLocation();
+    </script>
+</body>
+</html>
