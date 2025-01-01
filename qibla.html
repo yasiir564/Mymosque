@@ -521,6 +521,30 @@
         padding: 8px 12px;
     }
 }
+        * Enhanced Footer Links */
+        .quick-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            position: relative;
+            display: block;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .quick-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .quick-links a:hover::after {
+            width: 100%;
+        }
 
     </style>
 </head>
