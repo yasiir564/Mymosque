@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qibla Direction - Halal Hub</title>
     
-    <!-- Font Awesome -->
+    <!-- External CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
     
     <style>
+        /* Theme Variables */
         :root {
             --primary-color: #2575fc;
             --secondary-color: #6a11cb;
@@ -30,6 +28,7 @@
             --card-bg: #2d2d2d;
         }
 
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -43,7 +42,7 @@
             transition: all 0.3s ease;
         }
 
-        /* Header styles from main page */
+        /* Header Styles */
         .header {
             display: flex;
             justify-content: space-between;
@@ -70,51 +69,83 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Qibla Finder Container */
-        .qibla-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .compass-container {
-            width: 300px;
-            height: 300px;
-            margin: 30px auto;
-            position: relative;
-            transition: transform 0.5s ease;
-        }
-
-        .compass {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--card-bg);
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            position: relative;
+        /* View Controls */
+        .view-controls {
             display: flex;
             justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
+            gap: 10px;
+            margin: 20px 0;
         }
 
-        .compass::before {
-            content: '';
-            position: absolute;
-            width: 90%;
-            height: 90%;
-            border: 2px solid var(--primary-color);
+        /* AR View Styles */
+        #arView {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: #000;
+        }
+
+        .ar-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 1001;
+            pointer-events: none;
+        }
+
+        .close-ar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1002;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
             border-radius: 50%;
+            cursor: pointer;
         }
 
-        .arrow {
+        /* Compass Styles */
+        .compass-view {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .compass-rose {
             position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="%232575fc" stroke-width="2"/><path d="M50 5 L53 45 L50 50 L47 45 Z" fill="%232575fc"/><text x="50" y="20" text-anchor="middle" fill="%232575fc">N</text><text x="80" y="53" text-anchor="middle" fill="%232575fc">E</text><text x="50" y="85" text-anchor="middle" fill="%232575fc">S</text><text x="20" y="53" text-anchor="middle" fill="%232575fc">W</text></svg>') center/contain no-repeat;
+            transition: transform 0.1s ease;
+        }
+
+        .qibla-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
             width: 4px;
             height: 50%;
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             transform-origin: bottom center;
             border-radius: 5px;
+        }
+
+        /* Container Styles */
+        .qibla-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
         }
 
         .location-info {
@@ -125,6 +156,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* Button Styles */
         .btn {
             padding: 12px 24px;
             border-radius: 25px;
@@ -178,12 +210,13 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
             .header {
                 padding: 15px 20px;
             }
 
-            .compass-container {
+            .compass-view {
                 width: 250px;
                 height: 250px;
             }
@@ -211,10 +244,18 @@
         </h1>
         <p>Find the accurate direction of the Kaaba for your prayers</p>
 
-        <div class="compass-container">
-            <div class="compass">
-                <div class="arrow"></div>
-            </div>
+        <div class="view-controls">
+            <button class="btn" onclick="activateCompassView()">
+                <i class="fas fa-compass"></i> Compass View
+            </button>
+            <button class="btn" onclick="activateARView()">
+                <i class="fas fa-camera"></i> AR View
+            </button>
+        </div>
+
+        <div class="compass-view">
+            <div class="compass-rose"></div>
+            <div class="qibla-indicator"></div>
         </div>
 
         <div class="location-info">
@@ -228,6 +269,18 @@
         </button>
     </div>
 
+    <!-- AR View -->
+    <div id="arView">
+        <button class="close-ar" onclick="deactivateARView()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="ar-overlay">
+            <h2>Qibla Direction</h2>
+            <p id="ar-direction"></p>
+        </div>
+    </div>
+
+    <!-- Benefits Section -->
     <section class="benefits-section">
         <h2 style="text-align: center; margin-bottom: 30px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Benefits of Using Our Qibla Finder
@@ -256,30 +309,105 @@
         </div>
     </section>
 
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.js"></script>
+    <!-- External Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.js"></script>
 
     <script>
-        // Kaaba coordinates
+        // Constants
         const KAABA_LAT = 21.422487;
         const KAABA_LONG = 39.826206;
+        let currentQiblaDirection = 0;
+        let deviceOrientation = { alpha: 0, beta: 0, gamma: 0 };
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-            
-            // Add SweetAlert notification for theme change
-            const theme = document.body.classList.contains('dark-mode') ? 'Dark' : 'Light';
-            Swal.fire({
-                icon: 'success',
-                title: `${theme} Mode Activated`,
-                text: `Successfully switched to ${theme.toLowerCase()} mode`,
-                timer: 1500,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
+        // Compass and Orientation Functions
+        function initCompass() {
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', handleOrientation);
+                return true;
+            }
+            return false;
         }
 
+        function handleOrientation(event) {
+            if (event.alpha !== null) {
+                deviceOrientation = {
+                    alpha: event.alpha,
+                    beta: event.beta,
+                    gamma: event.gamma
+                };
+                updateCompassDisplay();
+            }
+        }
+
+        function updateCompassDisplay() {
+            const compassRose = document.querySelector('.compass-rose');
+            const qiblaIndicator = document.querySelector('.qibla-indicator');
+            
+            compassRose.style.transform = `rotate(${-deviceOrientation.alpha}deg)`;
+            const qiblaAngle = (currentQiblaDirection - deviceOrientation.alpha + 360) % 360;
+            qiblaIndicator.style.transform = `rotate(${qiblaAngle}deg)`;
+            
+            if (document.getElementById('arView').style.display === 'block') {
+                document.getElementById('ar-direction').textContent = 
+                    `${qiblaAngle.toFixed(1)}° from current direction`;
+            }
+        }
+
+        // View Control Functions
+        function activateCompassView() {
+            document.querySelector('.compass-view').style.display = 'block';
+            document.getElementById('arView').style.display = 'none';
+        }
+
+        async function activateARView() {
+            if (!navigator.xr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'AR Not Supported',
+                    text: 'Your device does not support AR features.'
+                });
+                return;
+            }
+
+            try {
+                const session = await navigator.xr.requestSession('immersive-ar');
+                document.getElementById('arView').style.display = 'block';
+                initARSession(session);
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'AR Error',
+                    text: 'Could not start AR session: ' + err.message
+                });
+            }
+        }
+
+        function deactivateARView() {
+            document.getElementById('arView').style.display = 'none';
+        }
+
+        async function initARSession(session) {
+            const canvas = document.createElement('canvas');
+            document.getElementById('arView').appendChild(canvas);
+            const gl = canvas.getContext('webgl', { xrCompatible: true });
+
+            session.addEventListener('end', () => {
+                deactivateARView();
+            });
+
+            const loop = (timestamp, frame) => {
+                if (frame) {
+                    const pose = frame.getViewerPose(referenceSpace);
+                    if (pose) {
+                        updateAROverlay(pose);
+                    }
+                }
+                session.requestAnimationFrame(loop);
+            };
+            session.requestAnimationFrame(loop);
+        }
+
+        // Location and Calculation Functions
         function requestLocation() {
             if (navigator.geolocation) {
                 Swal.fire({
@@ -306,17 +434,22 @@
             const lat1 = position.coords.latitude;
             const lon1 = position.coords.longitude;
             
-            // Calculate direction and distance
-            const qiblaDirection = calculateQiblaDirection(lat1, lon1);
+            currentQiblaDirection = calculateQiblaDirection(lat1, lon1);
             const distance = calculateDistance(lat1, lon1, KAABA_LAT, KAABA_LONG);
             
-            // Update UI
-            document.querySelector('.arrow').style.transform = `rotate(${qiblaDirection}deg)`;
             document.getElementById('location-text').textContent = `${lat1.toFixed(4)}°N, ${lon1.toFixed(4)}°E`;
             document.getElementById('distance-text').textContent = `${distance.toFixed(0)} km`;
-            document.getElementById('direction-text').textContent = `${qiblaDirection.toFixed(1)}° from North`;
+            document.getElementById('direction-text').textContent = `${currentQiblaDirection.toFixed(1)}° from North`;
 
-            // Show success notification
+            // Initialize compass after getting location
+            if (!initCompass()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Compass Not Available',
+                    text: 'Your device does not support compass features. Direction will be shown statically.'
+                });
+            }
+
             Swal.fire({
                 icon: 'success',
                 title: 'Location Updated',
@@ -353,7 +486,7 @@
             });
         }
 
-        // Calculate Qibla direction function remains unchanged
+        // Mathematical Calculation Functions
         function calculateQiblaDirection(lat1, lon1) {
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = KAABA_LAT * Math.PI / 180;
@@ -364,9 +497,8 @@
             return (qibla + 360) % 360;
         }
 
-        // Calculate distance function remains unchanged
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
+            const R = 6371; // Earth's radius in kilometers
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -379,8 +511,26 @@
             return R * c;
         }
 
-        // Check for saved dark mode preference and show welcome message
+        // Theme Functions
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            
+            const theme = document.body.classList.contains('dark-mode') ? 'Dark' : 'Light';
+            Swal.fire({
+                icon: 'success',
+                title: `${theme} Mode Activated`,
+                text: `Successfully switched to ${theme.toLowerCase()} mode`,
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+
+        // Initialization
         window.addEventListener('load', () => {
+            // Check for saved dark mode preference
             if (localStorage.getItem('darkMode') === 'true') {
                 document.body.classList.add('dark-mode');
             }
