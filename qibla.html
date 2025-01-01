@@ -10,6 +10,8 @@
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
+
     
     <style>
         :root {
@@ -254,6 +256,8 @@
         </div>
     </section>
 
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.js"></script>
+
     <script>
         // Kaaba coordinates
         const KAABA_LAT = 21.422487;
@@ -262,13 +266,39 @@
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            
+            // Add SweetAlert notification for theme change
+            const theme = document.body.classList.contains('dark-mode') ? 'Dark' : 'Light';
+            Swal.fire({
+                icon: 'success',
+                title: `${theme} Mode Activated`,
+                text: `Successfully switched to ${theme.toLowerCase()} mode`,
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
         }
 
         function requestLocation() {
             if (navigator.geolocation) {
+                Swal.fire({
+                    title: 'Detecting Location',
+                    text: 'Please wait while we access your location...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
                 navigator.geolocation.getCurrentPosition(handleLocation, handleError);
             } else {
-                alert("Geolocation is not supported by your browser");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Geolocation Not Supported',
+                    text: 'Your browser does not support geolocation services.',
+                    confirmButtonColor: '#2575fc'
+                });
             }
         }
 
@@ -276,10 +306,8 @@
             const lat1 = position.coords.latitude;
             const lon1 = position.coords.longitude;
             
-            // Calculate direction
+            // Calculate direction and distance
             const qiblaDirection = calculateQiblaDirection(lat1, lon1);
-            
-            // Calculate distance
             const distance = calculateDistance(lat1, lon1, KAABA_LAT, KAABA_LONG);
             
             // Update UI
@@ -287,24 +315,58 @@
             document.getElementById('location-text').textContent = `${lat1.toFixed(4)}°N, ${lon1.toFixed(4)}°E`;
             document.getElementById('distance-text').textContent = `${distance.toFixed(0)} km`;
             document.getElementById('direction-text').textContent = `${qiblaDirection.toFixed(1)}° from North`;
+
+            // Show success notification
+            Swal.fire({
+                icon: 'success',
+                title: 'Location Updated',
+                text: 'Qibla direction has been calculated successfully!',
+                timer: 2000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
         }
 
+        function handleError(error) {
+            let errorMessage = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Please allow location access to find Qibla direction";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Location information is unavailable";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "Location request timed out";
+                    break;
+                default:
+                    errorMessage = "An unknown error occurred";
+                    break;
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Location Error',
+                text: errorMessage,
+                confirmButtonColor: '#2575fc'
+            });
+        }
+
+        // Calculate Qibla direction function remains unchanged
         function calculateQiblaDirection(lat1, lon1) {
-            // Convert to radians
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = KAABA_LAT * Math.PI / 180;
             const Δλ = (KAABA_LONG - lon1) * Math.PI / 180;
-
-            // Calculate qibla direction
             const y = Math.sin(Δλ);
             const x = Math.cos(φ1) * Math.tan(φ2) - Math.sin(φ1) * Math.cos(Δλ);
             const qibla = Math.atan2(y, x) * 180 / Math.PI;
-
             return (qibla + 360) % 360;
         }
 
+        // Calculate distance function remains unchanged
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth's radius in km
+            const R = 6371;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -314,34 +376,25 @@
                     Math.cos(φ1) * Math.cos(φ2) *
                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
             return R * c;
         }
 
-        function handleError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("Please allow location access to find Qibla direction");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("Location information is unavailable");
-                    break;
-                case error.TIMEOUT:
-                    alert("Location request timed out");
-                    break;
-                default:
-                    alert("An unknown error occurred");
-                    break;
+        // Check for saved dark mode preference and show welcome message
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
             }
-        }
 
-        // Check for saved dark mode preference
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
-
-        // Request location on page load
-        requestLocation();
+            // Show welcome message
+            Swal.fire({
+                icon: 'info',
+                title: 'Welcome to Qibla Finder',
+                text: 'Allow location access to find the accurate Qibla direction',
+                confirmButtonColor: '#2575fc'
+            }).then(() => {
+                requestLocation();
+            });
+        });
     </script>
 </body>
 </html>
