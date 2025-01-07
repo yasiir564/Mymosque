@@ -270,185 +270,202 @@
 
     <script>
         // Gemini API configuration
-        const GEMINI_API_KEY = 'AIzaSyB3pkExmoGi55reR2ogSAdv66G4QGYCvfg'; // Replace with the provided API key
-        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const GEMINI_API_KEY = 'YOUR_API_KEY'; // Replace with your API key
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
-        // Initialize favorites from localStorage
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+// Initialize favorites from localStorage with error handling
+let favorites = [];
+try {
+    favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+} catch (error) {
+    console.error('Error loading favorites:', error);
+    localStorage.setItem('favorites', '[]');
+}
 
-        async function searchDuas() {
-            const query = document.getElementById('searchInput').value;
-            const resultsContainer = document.getElementById('results');
+async function searchDuas() {
+    const query = document.getElementById('searchInput').value;
+    const resultsContainer = document.getElementById('results');
 
-            if (!query.trim()) {
-                resultsContainer.innerHTML = '<div class="dua-card error-message">Please enter a description of your situation.</div>';
-                return;
-            }
+    if (!query.trim()) {
+        showError('Please enter a description of your situation.');
+        return;
+    }
 
-            // Show loading state
-            resultsContainer.innerHTML = `
-                <div class="dua-card" style="text-align: center;">
-                    <div class="loading-spinner"></div>
-                    <p>Searching for relevant duas...</p>
-                </div>`;
+    showLoading();
 
-            try {
-                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `Find a relevant Islamic dua for the following situation: ${query}. 
-                                      Please provide the response in JSON format with the following structure:
-                                      {
-                                          id: string,
-                                          category: string,
-                                          arabic_text: string,
-                                          transliteration: string,
-                                          translation: string,
-                                          source: string,
-                                          tags: string[]
-                                      }`
-                            }]
-                        }]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch dua recommendations');
-                }
-
-                const data = await response.json();
-                const dua = JSON.parse(data.candidates[0].content.parts[0].text);
-
-                // Display the dua
-                displayDua(dua);
-
-            } catch (error) {
-                resultsContainer.innerHTML = `
-                    <div class="dua-card error-message">
-                        <p>Sorry, there was an error finding duas. Please try again later.</p>
-                        <p>Error: ${error.message}</p>
-                    </div>`;
-            }
-        }
-
-        function displayDua(dua) {
-            const resultsContainer = document.getElementById('results');
-            const isFavorite = favorites.some(f => f.id === dua.id);
-
-            resultsContainer.innerHTML = `
-                <div class="dua-card">
-                    <div class="dua-header">
-                        <span class="dua-category">${dua.category}</span>
-                        <div class="dua-actions">
-                            <button class="action-btn" onclick="toggleFavorite(${JSON.stringify(dua)})">
-                                <i class="fas fa-heart favorite-icon" style="color: ${isFavorite ? '#ffd700' : '#ccc'}"></i>
-                            </button>
-                            <button class="action-btn" onclick="copyDua(${JSON.stringify(dua)})">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="arabic-text">${dua.arabic_text}</div>
-                    <div class="transliteration">${dua.transliteration}</div>
-                    <div class="translation">${dua.translation}</div>
-                    <div class="source"><i class="fas fa-book"></i> ${dua.source}</div>
-                    <div class="tags">
-                        ${dua.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                </div>`;
-        }
-
-        function toggleFavorite(dua) {
-            const index = favorites.findIndex(f => f.id === dua.id);
-            if (index === -1) {
-                favorites.push(dua);
-            } else {
-                favorites.splice(index, 1);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
+    try {
+        // Improved prompt for better AI responses
+        const prompt = `As an Islamic scholar, please find a relevant dua (prayer) for this situation: ${query}
+            Requirements:
+            - Provide only authentic duas from verified sources
+            - Include complete reference and context
+            - Ensure accurate Arabic text and transliteration
             
-            // Refresh the current view
-            if (document.getElementById('favorites').style.display === 'block') {
-                displayFavorites();
-            } else {
-                displayDua(dua);
-            }
-        }
+            Return the response in this JSON format:
+            {
+                "id": "unique_identifier",
+                "category": "category_name",
+                "arabic_text": "arabic_text",
+                "transliteration": "transliteration",
+                "translation": "english_translation",
+                "source": "source_reference",
+                "tags": ["relevant", "tags"],
+                "context": "when_to_use_this_dua"
+            }`;
 
-        function displayFavorites() {
-            const favoritesList = document.getElementById('favoritesList');
-            if (favorites.length === 0) {
-                favoritesList.innerHTML = '<div class="dua-card">No favorite duas saved yet.</div>';
-                return;
-            }
-
-            favoritesList.innerHTML = favorites.map(dua => `
-                <div class="dua-card">
-                    <div class="dua-header">
-                        <span class="dua-category">${dua.category}</span>
-                        <div class="dua-actions">
-                            <button class="action-btn" onclick="toggleFavorite(${JSON.stringify(dua)})">
-                                <i class="fas fa-heart favorite-icon" style="color: #ffd700"></i>
-                            </button>
-                            <button class="action-btn" onclick="copyDua(${JSON.stringify(dua)})">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="arabic-text">${dua.arabic_text}</div>
-                    <div class="transliteration">${dua.transliteration}</div>
-                    <div class="translation">${dua.translation}</div>
-                    <div class="source"><i class="fas fa-book"></i> ${dua.source}</div>
-                    <div class="tags">
-                        ${dua.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function toggleFavorites() {
-            const favoritesContainer = document.getElementById('favorites');
-            const resultsContainer = document.getElementById('results');
-            
-            if (favoritesContainer.style.display === 'none') {
-                favoritesContainer.style.display = 'block';
-                resultsContainer.style.display = 'none';
-                displayFavorites();
-            } else {
-                favoritesContainer.style.display = 'none';
-                resultsContainer.style.display = 'block';
-            }
-        }
-
-        function copyDua(dua) {
-            const textToCopy = `${dua.arabic_text}\n${dua.transliteration}\n${dua.translation}\nSource: ${dua.source}`;
-            navigator.clipboard.writeText(textToCopy);
-            
-            // Show a temporary success message
-            const button = event.target.closest('.action-btn');
-            const originalHTML = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => {
-                button.innerHTML = originalHTML;
-            }, 2000);
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        }
-
-        // Initialize dark mode preference
-        window.addEventListener('load', () => {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-            }
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }]
+            })
         });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
+            throw new Error('Invalid response format from API');
+        }
+
+        let dua;
+        try {
+            dua = JSON.parse(data.candidates[0].content.parts[0].text);
+            validateDuaObject(dua);
+        } catch (error) {
+            throw new Error('Failed to parse dua data: ' + error.message);
+        }
+
+        displayDua(dua);
+
+    } catch (error) {
+        showError(`Error: ${error.message}`);
+    }
+}
+
+function validateDuaObject(dua) {
+    const requiredFields = ['id', 'category', 'arabic_text', 'transliteration', 'translation', 'source', 'tags'];
+    for (const field of requiredFields) {
+        if (!dua[field]) {
+            throw new Error(`Missing required field: ${field}`);
+        }
+    }
+}
+
+function showLoading() {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = `
+        <div class="dua-card loading">
+            <div class="loading-spinner"></div>
+            <p>Searching for relevant duas...</p>
+        </div>`;
+}
+
+function showError(message) {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = `
+        <div class="dua-card error">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>${message}</p>
+            <p>Please try again or contact support if the problem persists.</p>
+        </div>`;
+}
+
+function displayDua(dua) {
+    const resultsContainer = document.getElementById('results');
+    const isFavorite = favorites.some(f => f.id === dua.id);
+
+    const html = `
+        <div class="dua-card" data-dua-id="${dua.id}">
+            <div class="dua-header">
+                <span class="dua-category">${escapeHtml(dua.category)}</span>
+                <div class="dua-actions">
+                    <button class="action-btn favorite-btn" onclick="toggleFavorite(${escapeHtml(JSON.stringify(dua))})">
+                        <i class="fas fa-heart" style="color: ${isFavorite ? '#ffd700' : '#ccc'}"></i>
+                    </button>
+                    <button class="action-btn copy-btn" onclick="copyDua(${escapeHtml(JSON.stringify(dua))})">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn share-btn" onclick="shareDua(${escapeHtml(JSON.stringify(dua))})">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="arabic-text" dir="rtl">${escapeHtml(dua.arabic_text)}</div>
+            <div class="transliteration">${escapeHtml(dua.transliteration)}</div>
+            <div class="translation">${escapeHtml(dua.translation)}</div>
+            <div class="context">${escapeHtml(dua.context || '')}</div>
+            <div class="source"><i class="fas fa-book"></i> ${escapeHtml(dua.source)}</div>
+            <div class="tags">
+                ${dua.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+            </div>
+        </div>`;
+
+    resultsContainer.innerHTML = html;
+}
+
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+async function shareDua(dua) {
+    const shareText = `${dua.arabic_text}\n${dua.transliteration}\n${dua.translation}\nSource: ${dua.source}`;
+    
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: 'Islamic Dua',
+                text: shareText
+            });
+        } else {
+            await navigator.clipboard.writeText(shareText);
+            showToast('Dua copied to clipboard!');
+        }
+    } catch (error) {
+        showToast('Failed to share dua');
+    }
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Initialize dark mode and other preferences
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize dark mode
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === '/') {
+            document.getElementById('searchInput').focus();
+        }
+    });
+});
     </script>
 </body>
 </html>
