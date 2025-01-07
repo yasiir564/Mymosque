@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Dua Finder - Halal Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2575fc;
+            --secondary-color: #6a11cb;
+            --text-color: #333;
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --primary-color: #4a90e2;
+            --secondary-color: #7c4dff;
+            --text-color: #ffffff;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .search-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            font-size: 16px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37,117,252,0.2);
+        }
+
+        .dua-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .dua-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dua-category {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .dua-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        .arabic-text {
+            font-size: 24px;
+            text-align: right;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .transliteration {
+            color: var(--text-color);
+            opacity: 0.8;
+            margin: 10px 0;
+        }
+
+        .translation {
+            margin: 10px 0;
+        }
+
+        .source {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            background: rgba(37,117,252,0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .arabic-text {
+                font-size: 20px;
+            }
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #ff4444;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .favorites-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+        }
+
+        .favorite-icon {
+            color: #ffd700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-book-open"></i>
+            <span>AI Dua Finder</span>
+        </div>
+        <div class="header-buttons">
+            <button class="btn" onclick="toggleFavorites()">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="btn" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" 
+                    placeholder="Describe your situation or need (e.g., 'I am feeling anxious about my exam')" 
+                    id="searchInput">
+                <button class="btn" onclick="searchDuas()">
+                    <i class="fas fa-search"></i> Find Dua
+                </button>
+            </div>
+        </div>
+
+        <div id="results"></div>
+        <div id="favorites" class="favorites-container" style="display: none;">
+            <h2>Your Favorite Duas</h2>
+            <div id="favoritesList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Gemini API configuration
+        const GEMINI_API_KEY = 'AIzaSyB3pkExmoGi55reR2ogSAdv66G4QGYCvfg'; // Replace with the provided API key
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+
+        // Initialize favorites from localStorage
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        async function searchDuas() {
+            const query = document.getElementById('searchInput').value;
+            const resultsContainer = document.getElementById('results');
+
+            if (!query.trim()) {
+                resultsContainer.innerHTML = '<div class="dua-card error-message">Please enter a description of your situation.</div>';
+                return;
+            }
+
+            // Show loading state
+            resultsContainer.innerHTML = `
+                <div class="dua-card" style="text-align: center;">
+                    <div class="loading-spinner"></div>
+                    <p>Searching for relevant duas...</p>
+                </div>`;
+
+            try {
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Find a relevant Islamic dua for the following situation: ${query}. 
+                                      Please provide the response in JSON format with the following structure:
+                                      {
+                                          id: string,
+                                          category: string,
+                                          arabic_text: string,
+                                          transliteration: string,
+                                          translation: string,
+                                          source: string,
+                                          tags: string[]
+                                      }`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch dua recommendations');
+                }
+
+                const data = await response.json();
+                const dua = JSON.parse(data.candidates[0].content.parts[0].text);
+
+                // Display the dua
+                displayDua(dua);
+
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="dua-card error-message">
+                        <p>Sorry, there was an error finding duas. Please try again later.</p>
+                        <p>Error: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        function displayDua(dua) {
+            const resultsContainer = document.getElementById('results');
+            const isFavorite = favorites.some(f => f.id === dua.id);
+
+            resultsContainer.innerHTML = `
+                <div class="dua-card">
+                    <div class="dua-header">
+                        <span class="dua-category">${dua.category}</span>
+                        <div class="dua-actions">
+                            <button class="action-btn" onclick="toggleFavorite(${JSON.stringify(dua)})">
+                                <i class="fas fa-heart favorite-icon" style="color: ${isFavorite ? '#ffd700' : '#ccc'}"></i>
+                            </button>
+                            <button class="action-btn" onclick="copyDua(${JSON.stringify(dua)})">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="arabic-text">${dua.arabic_text}</div>
+                    <div class="transliteration">${dua.transliteration}</div>
+                    <div class="translation">${dua.translation}</div>
+                    <div class="source"><i class="fas fa-book"></i> ${dua.source}</div>
+                    <div class="tags">
+                        ${dua.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function toggleFavorite(dua) {
+            const index = favorites.findIndex(f => f.id === dua.id);
+            if (index === -1) {
+                favorites.push(dua);
+            } else {
+                favorites.splice(index, 1);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            // Refresh the current view
+            if (document.getElementById('favorites').style.display === 'block') {
+                displayFavorites();
+            } else {
+                displayDua(dua);
+            }
+        }
+
+        function displayFavorites() {
+            const favoritesList = document.getElementById('favoritesList');
+            if (favorites.length === 0) {
+                favoritesList.innerHTML = '<div class="dua-card">No favorite duas saved yet.</div>';
+                return;
+            }
+
+            favoritesList.innerHTML = favorites.map(dua => `
+                <div class="dua-card">
+                    <div class="dua-header">
+                        <span class="dua-category">${dua.category}</span>
+                        <div class="dua-actions">
+                            <button class="action-btn" onclick="toggleFavorite(${JSON.stringify(dua)})">
+                                <i class="fas fa-heart favorite-icon" style="color: #ffd700"></i>
+                            </button>
+                            <button class="action-btn" onclick="copyDua(${JSON.stringify(dua)})">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="arabic-text">${dua.arabic_text}</div>
+                    <div class="transliteration">${dua.transliteration}</div>
+                    <div class="translation">${dua.translation}</div>
+                    <div class="source"><i class="fas fa-book"></i> ${dua.source}</div>
+                    <div class="tags">
+                        ${dua.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFavorites() {
+            const favoritesContainer = document.getElementById('favorites');
+            const resultsContainer = document.getElementById('results');
+            
+            if (favoritesContainer.style.display === 'none') {
+                favoritesContainer.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                displayFavorites();
+            } else {
+                favoritesContainer.style.display = 'none';
+                resultsContainer.style.display = 'block';
+            }
+        }
+
+        function copyDua(dua) {
+            const textToCopy = `${dua.arabic_text}\n${dua.transliteration}\n${dua.translation}\nSource: ${dua.source}`;
+            navigator.clipboard.writeText(textToCopy);
+            
+            // Show a temporary success message
+            const button = event.target.closest('.action-btn');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+            }, 2000);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Initialize dark mode preference
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</body>
+</html>
