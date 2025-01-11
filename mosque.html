@@ -911,6 +911,14 @@
                 </div>
             </div>
         </div>
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="bg-white p-4 rounded shadow-lg text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 mb-0">Searching for mosques...</p>
+    </div>
+</div>
 
         <!-- Mosque Details Modal -->
         <div class="modal fade" id="mosqueDetailsModal" tabindex="-1">
@@ -925,6 +933,12 @@
             </div>
         </div>
     </div>
+
+    <div class="text-center mt-3 mb-4">
+    <button id="loadMoreButton" class="btn btn-primary" style="display: none;">
+        Load More Mosques
+    </button>
+</div>
     <!-- Share Overlay -->
     <div class="share-overlay" id="shareOverlay">
         <div class="share-modal">
@@ -996,7 +1010,9 @@ class MosqueFinder {
         this.markers = [];
         this.mosques = [];
         this.userLocation = null;
-        this.geminiApiKey = 'AIzaSyBBhXs0Wd66ceLEHW6qsUjja78BSMAD9G4'; // Replace with your API key
+        this.geminiApiKey = 'AIzaSyBBhXs0Wd66ceLEHW6qsUjja78BSMAD9G4';
+        this.currentPage = 1;
+        this.mosquesPerPage = 5;
         this.initializeMap();
         this.setupEventListeners();
     }
@@ -1009,14 +1025,13 @@ class MosqueFinder {
     }
 
     setupEventListeners() {
-        // Search and location buttons
         document.getElementById('searchButton')?.addEventListener('click', () => this.searchMosques());
         document.getElementById('locateButton')?.addEventListener('click', () => this.getUserLocation());
         document.getElementById('cityInput')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.searchMosques();
         });
+        document.getElementById('loadMoreButton')?.addEventListener('click', () => this.loadMoreMosques());
 
-        // Handle window resize
         window.addEventListener('resize', () => {
             if (this.map) {
                 this.map.invalidateSize();
@@ -1032,6 +1047,9 @@ class MosqueFinder {
         }
 
         this.showLoadingState(true);
+        this.currentPage = 1;
+        this.clearResults();
+        
         try {
             const locationData = await this.getCityCoordinates(city);
             if (!locationData) {
@@ -1051,11 +1069,17 @@ class MosqueFinder {
 
     showLoadingState(isLoading) {
         const searchButton = document.getElementById('searchButton');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
         if (searchButton) {
             searchButton.disabled = isLoading;
             searchButton.innerHTML = isLoading ? 
                 '<span class="spinner-border spinner-border-sm"></span> Searching...' : 
                 'Search';
+        }
+
+        if (loadingOverlay) {
+            loadingOverlay.style.display = isLoading ? 'flex' : 'none';
         }
     }
 
@@ -1110,17 +1134,12 @@ class MosqueFinder {
                 lon: m.lon,
                 city: city,
                 denomination: m.tags.denomination || 'Not specified',
-                address: this.formatAddress(m.tags)
+                address: this.formatAddress(m.tags),
+                isAnalyzed: false
             }));
 
-        // Process mosques in batches to avoid overwhelming the API
-        const batchSize = 5;
-        for (let i = 0; i < this.mosques.length; i += batchSize) {
-            const batch = this.mosques.slice(i, i + batchSize);
-            await Promise.all(batch.map(mosque => this.fetchMosqueDetails(mosque)));
-            this.updateMap(this.mosques);
-            this.renderMosqueList(this.mosques);
-        }
+        await this.displayMosquePage(1);
+        this.updateLoadMoreButton();
     }
 
     formatAddress(tags) {
@@ -1129,6 +1148,51 @@ class MosqueFinder {
         if (tags['addr:housenumber']) addressParts.push(tags['addr:housenumber']);
         if (tags['addr:postcode']) addressParts.push(tags['addr:postcode']);
         return addressParts.length > 0 ? addressParts.join(', ') : 'Address not available';
+    }
+
+    async displayMosquePage(page) {
+        const startIdx = (page - 1) * this.mosquesPerPage;
+        const endIdx = startIdx + this.mosquesPerPage;
+        const pageMosques = this.mosques.slice(startIdx, endIdx);
+
+        for (const mosque of pageMosques) {
+            if (!mosque.isAnalyzed) {
+                this.showMosqueLoadingState(mosque.id);
+                await this.fetchMosqueDetails(mosque);
+                mosque.isAnalyzed = true;
+            }
+        }
+
+        this.updateMap(this.mosques);
+        this.renderMosqueList();
+    }
+
+    async loadMoreMosques() {
+        this.currentPage++;
+        await this.displayMosquePage(this.currentPage);
+        this.updateLoadMoreButton();
+    }
+
+    updateLoadMoreButton() {
+        const loadMoreButton = document.getElementById('loadMoreButton');
+        if (loadMoreButton) {
+            const remainingMosques = this.mosques.length - (this.currentPage * this.mosquesPerPage);
+            loadMoreButton.style.display = remainingMosques > 0 ? 'block' : 'none';
+        }
+    }
+
+    showMosqueLoadingState(mosqueId) {
+        const mosqueCard = document.querySelector(`#mosque-${mosqueId}`);
+        if (mosqueCard) {
+            mosqueCard.querySelector('.mosque-details').innerHTML = `
+                <div class="text-center p-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Analyzing mosque details...</span>
+                    </div>
+                    <p class="mt-2">Analyzing mosque details...</p>
+                </div>
+            `;
+        }
     }
 
     async fetchMosqueDetails(mosque) {
@@ -1142,60 +1206,51 @@ class MosqueFinder {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Please provide detailed information about the mosque "${mosque.name}" located in ${mosque.city}. 
-                            Include information about:
+                            text: `Analyze the mosque "${mosque.name}" in ${mosque.city}. 
+                            Provide verified information about:
                             1. Historical significance
                             2. Architectural style
                             3. Prayer facilities
                             4. Community services
                             5. Notable features
-                            Format the response as a JSON object with these fields.`
+                            If information is not available or uncertain, exclude those fields.
+                            Format as JSON with only verified information.`
                         }]
                     }],
                     generationConfig: {
-                        temperature: 0.7,
-                        topK: 40,
-                        topP: 0.95,
+                        temperature: 0.3,
+                        topK: 20,
+                        topP: 0.8,
                         maxOutputTokens: 1024,
                     }
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch mosque details');
-            }
+            if (!response.ok) throw new Error('Failed to fetch mosque details');
 
             const data = await response.json();
-            
             try {
                 const detailsText = data.candidates[0].content.parts[0].text;
                 const details = JSON.parse(detailsText);
                 
-                Object.assign(mosque, {
-                    historicalSignificance: details.historicalSignificance || 'Information not available',
-                    architecture: details.architecturalStyle || 'Information not available',
-                    prayerFacilities: details.prayerFacilities || 'Information not available',
-                    communityServices: details.communityServices || 'Information not available',
-                    notableFeatures: details.notableFeatures || 'Information not available'
-                });
+                const cleanDetails = {};
+                for (const [key, value] of Object.entries(details)) {
+                    if (value && 
+                        value !== 'Information not available' && 
+                        value !== 'Unknown' && 
+                        value !== 'Not specified' &&
+                        value.length > 0) {
+                        cleanDetails[key] = value;
+                    }
+                }
+                
+                Object.assign(mosque, cleanDetails);
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);
-                this.setDefaultMosqueDetails(mosque);
             }
         } catch (error) {
             console.error('Error fetching mosque details:', error);
-            this.setDefaultMosqueDetails(mosque);
         }
-    }
-
-    setDefaultMosqueDetails(mosque) {
-        Object.assign(mosque, {
-            historicalSignificance: 'Information not available',
-            architecture: 'Information not available',
-            prayerFacilities: 'Information not available',
-            communityServices: 'Information not available',
-            notableFeatures: 'Information not available'
-        });
     }
 
     updateMap(mosques) {
@@ -1209,17 +1264,20 @@ class MosqueFinder {
     }
 
     createPopupContent(mosque) {
+        const details = [];
+        if (mosque.historicalSignificance) details.push(`<p><strong>Historical Significance:</strong><br>${mosque.historicalSignificance}</p>`);
+        if (mosque.architecture) details.push(`<p><strong>Architecture:</strong><br>${mosque.architecture}</p>`);
+        if (mosque.prayerFacilities) details.push(`<p><strong>Prayer Facilities:</strong><br>${mosque.prayerFacilities}</p>`);
+        if (mosque.communityServices) details.push(`<p><strong>Community Services:</strong><br>${mosque.communityServices}</p>`);
+        if (mosque.notableFeatures) details.push(`<p><strong>Notable Features:</strong><br>${mosque.notableFeatures}</p>`);
+
         return `
             <div class="popup-content">
                 <h5>${mosque.name}</h5>
-                <p><strong>Denomination:</strong> ${mosque.denomination}</p>
-                <p><strong>Address:</strong> ${mosque.address}</p>
+                ${mosque.denomination !== 'Not specified' ? `<p><strong>Denomination:</strong> ${mosque.denomination}</p>` : ''}
+                ${mosque.address !== 'Address not available' ? `<p><strong>Address:</strong> ${mosque.address}</p>` : ''}
                 <div class="mosque-details">
-                    <p><strong>Historical Significance:</strong><br>${mosque.historicalSignificance}</p>
-                    <p><strong>Architecture:</strong><br>${mosque.architecture}</p>
-                    <p><strong>Prayer Facilities:</strong><br>${mosque.prayerFacilities}</p>
-                    <p><strong>Community Services:</strong><br>${mosque.communityServices}</p>
-                    <p><strong>Notable Features:</strong><br>${mosque.notableFeatures}</p>
+                    ${details.length > 0 ? details.join('') : '<p class="text-muted">No detailed information available</p>'}
                 </div>
                 <div class="popup-actions">
                     <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${mosque.lat},${mosque.lon}', '_blank')" class="btn btn-sm btn-primary">
@@ -1230,11 +1288,11 @@ class MosqueFinder {
         `;
     }
 
-    renderMosqueList(mosques) {
+    renderMosqueList() {
         const list = document.getElementById('mosqueList');
         if (!list) return;
 
-        if (mosques.length === 0) {
+        if (this.mosques.length === 0) {
             list.innerHTML = `
                 <div class="col-12">
                     <div class="alert alert-info">No mosques found in this area</div>
@@ -1243,31 +1301,44 @@ class MosqueFinder {
             return;
         }
 
-        list.innerHTML = mosques.map(mosque => `
+        const startIdx = 0;
+        const endIdx = this.currentPage * this.mosquesPerPage;
+        const displayedMosques = this.mosques.slice(startIdx, endIdx);
+
+        list.innerHTML = displayedMosques.map(mosque => this.createMosqueCard(mosque)).join('');
+    }
+
+    createMosqueCard(mosque) {
+        const details = [];
+        
+        if (mosque.historicalSignificance) details.push(`<p><strong>Historical Significance:</strong><br>${mosque.historicalSignificance}</p>`);
+        if (mosque.architecture) details.push(`<p><strong>Architecture:</strong><br>${mosque.architecture}</p>`);
+        if (mosque.prayerFacilities) details.push(`<p><strong>Prayer Facilities:</strong><br>${mosque.prayerFacilities}</p>`);
+        if (mosque.communityServices) details.push(`<p><strong>Community Services:</strong><br>${mosque.communityServices}</p>`);
+        if (mosque.notableFeatures) details.push(`<p><strong>Notable Features:</strong><br>${mosque.notableFeatures}</p>`);
+
+        return `
             <div class="col-md-6 col-lg-4 mb-3">
-                <div class="card h-100 mosque-card">
+                <div class="card h-100 mosque-card" id="mosque-${mosque.id}">
                     <div class="card-body">
                         <h5 class="card-title">${mosque.name}</h5>
                         <p class="card-text">
-                            <strong>Denomination:</strong> ${mosque.denomination}<br>
-                            <strong>Address:</strong> ${mosque.address}
+                            ${mosque.denomination !== 'Not specified' ? `<strong>Denomination:</strong> ${mosque.denomination}<br>` : ''}
+                            ${mosque.address !== 'Address not available' ? `<strong>Address:</strong> ${mosque.address}` : ''}
                         </p>
                         <div class="mosque-details">
-                            <p><strong>Historical Significance:</strong><br>${mosque.historicalSignificance}</p>
-                            <p><strong>Architecture:</strong><br>${mosque.architecture}</p>
-                            <p><strong>Prayer Facilities:</strong><br>${mosque.prayerFacilities}</p>
-                            <p><strong>Community Services:</strong><br>${mosque.communityServices}</p>
-                            <p><strong>Notable Features:</strong><br>${mosque.notableFeatures}</p>
+                            ${details.length > 0 ? details.join('') : '<p class="text-muted">No detailed information available</p>'}
                         </div>
                         <div class="card-actions mt-3">
-                            <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${mosque.lat},${mosque.lon}', '_blank')" class="btn btn-primary btn-sm">
+                            <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${mosque.lat},${mosque.lon}', '_blank')" 
+                                    class="btn btn-primary btn-sm">
                                 Get Directions
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;
     }
 
     getUserLocation() {
@@ -1297,7 +1368,6 @@ class MosqueFinder {
                     
                     this.userLocation = { lat: latitude, lon: longitude };
                     this.searchMosques();
-
                 } catch (error) {
                     this.showAlert('Error getting location details', 'error');
                 }
@@ -1308,7 +1378,7 @@ class MosqueFinder {
         );
     }
 
-    getGeolocationErrorMessage(error) {
+   getGeolocationErrorMessage(error) {
         const messages = {
             1: 'Permission denied. Please enable location services.',
             2: 'Location information unavailable.',
@@ -1345,6 +1415,50 @@ class MosqueFinder {
             mosqueList.innerHTML = '';
         }
         this.clearMap();
+        
+        // Reset pagination
+        this.currentPage = 1;
+        const loadMoreButton = document.getElementById('loadMoreButton');
+        if (loadMoreButton) {
+            loadMoreButton.style.display = 'none';
+        }
+    }
+
+    // Sort mosques by rating or relevance
+    sortMosques() {
+        // Sort mosques based on available information and potential significance
+        this.mosques.sort((a, b) => {
+            const aScore = this.calculateMosqueScore(a);
+            const bScore = this.calculateMosqueScore(b);
+            return bScore - aScore;
+        });
+    }
+
+    // Calculate a score for mosque sorting
+    calculateMosqueScore(mosque) {
+        let score = 0;
+        
+        // Add points for available information
+        if (mosque.historicalSignificance) score += 2;
+        if (mosque.architecture) score += 1;
+        if (mosque.prayerFacilities) score += 1;
+        if (mosque.communityServices) score += 1;
+        if (mosque.notableFeatures) score += 1;
+        if (mosque.denomination !== 'Not specified') score += 1;
+        if (mosque.address !== 'Address not available') score += 1;
+
+        // Bonus points for length of description (indicating more detailed information)
+        const detailsLength = [
+            mosque.historicalSignificance || '',
+            mosque.architecture || '',
+            mosque.prayerFacilities || '',
+            mosque.communityServices || '',
+            mosque.notableFeatures || ''
+        ].join('').length;
+
+        score += Math.min(detailsLength / 100, 5); // Cap the bonus at 5 points
+
+        return score;
     }
 }
 
