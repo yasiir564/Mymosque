@@ -450,7 +450,7 @@
         </div>
     </main>
 
-    <script>
+   <script>
 // Prayer Times API Integration
 class PrayerTimesApp {
     constructor() {
@@ -591,7 +591,6 @@ class PrayerTimesApp {
     }
 
     showErrorMessage(message, error = null) {
-        // Simplified error handling, replace with your preferred method
         alert(message);
         if (error) {
             console.error('Error details:', error);
@@ -599,8 +598,39 @@ class PrayerTimesApp {
     }
 }
 
+// Additional utility functions
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+}
+
+function shareWebsite() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'MosqueFinder Pro',
+            text: 'Check out MosqueFinder Pro - Your Prayer Times Companion',
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        alert('Web Share API not supported in this browser');
+    }
+}
+
+function signIn() {
+    alert('Sign In functionality to be implemented');
+}
+
+function findNearbyMosques() {
+    alert('Nearby Mosques feature coming soon!');
+}
+
 // Initialize the app when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Restore dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+    
     new PrayerTimesApp();
 });
     </script>
